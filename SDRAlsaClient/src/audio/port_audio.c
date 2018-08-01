@@ -25,7 +25,7 @@ The authors can be reached by email at:
 
 */
 
-#include "../common/defs.h"
+#include "../common/include.h"
 
 // Static members
 static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char *device);

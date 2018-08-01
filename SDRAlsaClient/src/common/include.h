@@ -1,7 +1,7 @@
 /*
-defs.h
+include.h
 
-'C' definitions for the FCD Client application
+'C' includes for the FCD Client application
 
 Copyright (C) 2014 by G3UKB Bob Cowdery
 
@@ -25,17 +25,24 @@ The authors can be reached by email at:
 
 */
 
-#ifndef _defs_h
-#define _defs_h
+#ifndef _include_h
+#define _include_h
 
-#ifdef BUILD_DLL
-    #define DLL_EXPORT __declspec(dllexport)
-#else
-    #define DLL_EXPORT __declspec(dllimport)
-#endif
+// System headers
+#include <windows.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
 
-#define TRUE 1
-#define FALSE 0
 
+// Library headers
+#include "../../libs/portaudio/include/portaudio.h"
+#include "../../libs/pthreads/include/pthread.h"
+
+// Application headers
+#include "defs.h"
+#include "../ringbuffer/ringb.h"
+#include "../audio/port_audio.h"
 
 #endif

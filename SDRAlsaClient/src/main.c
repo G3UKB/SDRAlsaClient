@@ -25,7 +25,7 @@ The authors can be reached by email at:
 
 */
 
-#include "common/defs.h"
+#include "common/include.h"
 
 // a sample exported function
 void DLL_EXPORT RunClient()
