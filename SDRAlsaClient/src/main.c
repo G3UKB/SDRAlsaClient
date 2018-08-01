@@ -30,8 +30,14 @@ The authors can be reached by email at:
 // a sample exported function
 void DLL_EXPORT RunClient()
 {
+    int i;
+
     int PaErrorCode = audio_init();
     DeviceEnumList* d = enum_inputs();
+    DeviceEnum* e = d->devices;
+    for(i=0;i<d->entries;i++) {
+        printf("%s\n", e[i].name);
+    }
 }
 
 DLL_EXPORT BOOL APIENTRY DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
