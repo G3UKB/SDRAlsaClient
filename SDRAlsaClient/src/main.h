@@ -33,7 +33,33 @@ extern "C"
 {
 #endif
 
-void DLL_EXPORT RunClient();
+// Defines
+#define METIS_FRAME_SZ 1032
+// Allow 10 writes of 1024 IQ samples
+#define iq_ring_byte_sz 10*1024*4
+
+//==================================================================
+// Ring buffer to hold audio samples
+ringb_t *rb_iq;
+
+//==================================================================
+// Threads for audio capture and UDP dispatch
+pthread_t udp_writer_thd;
+pthread_t udp_reader_thd;
+
+// Thread data structure for UDP reader/writer
+typedef struct udp_thread_data {
+    int terminate;
+    int socket;
+    struct sockaddr_in *srv_addr;
+	ringb_t *rb;
+}udp_thread_data;
+udp_thread_data *udp_writer_td;
+udp_thread_data *udp_reader_td;
+
+
+// Prototypes
+int DLL_EXPORT RunClient();
 
 #ifdef __cplusplus
 }

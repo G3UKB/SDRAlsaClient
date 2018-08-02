@@ -38,13 +38,13 @@ void udp_reader_imp(void* data){
     // Get our thread parameters
     udp_thread_data* td = (udp_thread_data*)data;
     int sd = td->socket;
-    struct sockaddr_in *cli_addr = td->cli_addr;
+    struct sockaddr_in *srv_addr = td->srv_addr;
 
     printf("Started UDP reader thread\n");
 
     while (td->terminate == FALSE) {
-         udprecvdata(sd, cli_addr);
-         sleep(0.1);
+         udprecvdata(sd, srv_addr);
+         Sleep(0.1);
     }
 
     printf("UDP Reader thread exiting...\n");
@@ -56,6 +56,7 @@ void udp_reader_imp(void* data){
 // ToDo - Enhance for other sound card type devices
 static void udprecvdata(int sd, struct sockaddr_in *cliAddr) {
 
+    int n;
     unsigned int addr_sz = sizeof(*cliAddr);
 
     // Read a frame size data packet

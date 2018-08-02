@@ -36,7 +36,7 @@ void udp_writer_imp(void* data){
     udp_thread_data* td = (udp_thread_data*)data;
     ringb_t *rb = td->rb;
     int sd = td->socket;
-    struct sockaddr_in *cli_addr = td->cli_addr;
+    struct sockaddr_in *srv_addr = td->srv_addr;
 
     printf("Started UDP writer thread\n");
 

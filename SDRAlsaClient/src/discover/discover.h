@@ -25,7 +25,7 @@ The authors can be reached by email at:
 */
 
 /* Constants */
-#define LOCAL_SERVER_PORT 1024
+#define REMOTE_SERVER_PORT 1024
 #define MAX_MSG 100
 #define MAX_RESP 60
 #define DISCOVERY_MSG 0
@@ -37,3 +37,4 @@ The authors can be reached by email at:
 
 // Prototypes
 struct sockaddr_in *do_discover();
+//struct sockaddr_in * udprecvcontrol(int sd);;

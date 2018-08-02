@@ -1,7 +1,7 @@
 /*
 discover.c
 
-Do HPSDR discovery protocol 1
+Emulate HPSDR discovery protocol 1
 
 Copyright (C) 2018 by G3UKB Bob Cowdery
 
@@ -29,96 +29,49 @@ The authors can be reached by email at:
 
 // Module vars
 // Client and server addresses
-struct sockaddr_in cliAddr, servAddr;
+struct sockaddr_in bcAddr, svrAddr;
 unsigned char msg[MAX_MSG];
 unsigned char resp[MAX_RESP];
 unsigned char pcdata[METIS_FRAME_SZ];
 
 // Forward refs
-static int udprecvcontrol(int sd);
-static int udpsendresp(int sd, int type);
+static struct sockaddr_in * udprecvcontrol(int sd);
 
 // Discover protocol
 struct sockaddr_in *do_discover(int sd) {
     int rc, udpmsg;
 
     // Send discovery message
-    printf("Waiting for discovery message...\n");
-    while((udpmsg = udprecvcontrol(sd)) != DISCOVERY_MSG) {
-        sleep(0.1);
+    // Clear message buffer
+    memset(msg,0x0,MAX_MSG);
+    msg[0] = 0xEF;
+    msg[1] = 0xFE;
+    msg[2] = 0x02;
+    // Set BC address
+    bcAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
+    bcAddr.sin_port = REMOTE_SERVER_PORT;
+    // Dispatch
+    if (sendto(sd, resp, MAX_RESP, 0, (struct sockaddr*) &bcAddr, sizeof(bcAddr)) == -1)
+    {
+        return (struct sockaddr_in *)NULL;
     }
-    printf("Discover... sending response\n");
-    udpsendresp(sd, DISCOVERY_RESP);
 
-    // Wait for start message
-    printf("Waiting for start message...\n");
-    while((udpmsg = udprecvcontrol(sd)) != START_MSG) {
-        sleep(0.1);
-    }
-    printf("Starting...\n");
-
-    return &cliAddr;
+    // Waiting for discovery response
+    return udprecvcontrol(sd);
 }
 
 // Receive one packet from the client
-static int udprecvcontrol(int sd) {
+static struct sockaddr_in * udprecvcontrol(int sd) {
     int n;
-    unsigned int cliLen = sizeof(cliAddr);
+    unsigned int svrLen = sizeof(svrAddr);
 
     // Clear message buffer
     memset(msg,0x0,MAX_MSG);
     // receive message
-    n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &cliAddr, &cliLen);
+    n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &svrAddr, &svrLen);
 
-    if(n<0) {
-        return READ_FAILURE;
-    }
-
-    // Announce
-    // printf("Received %d bytes from %s:UDP%u\n", n, inet_ntoa(cliAddr.sin_addr), ntohs(cliAddr.sin_port));
-
-    // Decode message
-    if (msg[2] == 0x02) {
-        // Discovery message
-        return DISCOVERY_MSG;
-    } else if (msg[2] == 0x04) {
-        if ((msg[3] & 0x01) == 0x01)
-            return START_MSG;
-        else if ((msg[3] & 0x01) == 0x00)
-            return STOP_MSG;
-        else {
-            printf("Received message 0x02 subtype %d which is not implemented!\n", msg[3]);
-            return UNKNOWN_MSG;
-        }
-    }
-    printf("Received message %d which is not implemented!\n", msg[2]);
-    return UNKNOWN_MSG;
-}
-
-// Write discover response packet to the UDP client
-static int udpsendresp(int sd, int type) {
-    if (type == DISCOVERY_RESP) {
-        memset(msg,0x0,MAX_RESP);
-        resp[0] = 0xEF;
-        resp[1] = 0xFE;
-        resp[2] = 0x02;
-        // 6 bytes MAC address, ignored for now
-        resp[3] = 0x01;
-        resp[4] = 0x01;
-        resp[5] = 0x01;
-        resp[6] = 0x01;
-        resp[7] = 0x01;
-        resp[8] = 0x01;
-        // Frig Metis address to 1.8
-        resp[9] = 0x18;
-
-        //Send discovery response packet
-        if (sendto(sd, resp, MAX_RESP, 0, (struct sockaddr*) &cliAddr, sizeof(cliAddr)) == -1)
-        {
-            printf("Failed to send discover response!");
-            return FALSE;
-        }
-    }
-    return TRUE;
+    if(n<0)
+        return (struct sockaddr_in *)NULL;
+    return &svrAddr;
 }
 

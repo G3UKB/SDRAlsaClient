@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 The authors can be reached by email at:
 
 	bob@bobcowdery.plus.com
-
 */
 
 #ifndef _defs_h
@@ -34,8 +33,13 @@ The authors can be reached by email at:
     #define DLL_EXPORT __declspec(dllimport)
 #endif
 
+// Defines
 #define TRUE 1
 #define FALSE 0
+
+#define METIS_FRAME_SZ 1032
+// Allow 10 writes of 1024 IQ samples
+#define iq_ring_byte_sz 10*1024*4
 
 
 #endif

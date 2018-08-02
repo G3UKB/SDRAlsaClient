@@ -30,10 +30,13 @@ The authors can be reached by email at:
 
 // System headers
 #include <windows.h>
+#include <winsock2.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 
 // Library headers
@@ -44,5 +47,9 @@ The authors can be reached by email at:
 #include "defs.h"
 #include "../ringbuffer/ringb.h"
 #include "../audio/port_audio.h"
+#include "../udpreader/udp_reader.h"
+#include "../udpwriter/udp_writer.h"
+#include "../discover/discover.h"
+#include "../main.h"
 
 #endif
