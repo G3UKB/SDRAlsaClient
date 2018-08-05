@@ -46,6 +46,10 @@
 		<Unit filename="src/audio/port_audio.h" />
 		<Unit filename="src/common/defs.h" />
 		<Unit filename="src/common/include.h" />
+		<Unit filename="src/discover/discover.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/discover/discover.h" />
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -54,6 +58,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/ringbuffer/ringb.h" />
+		<Unit filename="src/udpreader/udp_reader.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/udpreader/udp_reader.h" />
+		<Unit filename="src/udpwriter/udp_writer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/udpwriter/udp_writer.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
