@@ -67,7 +67,7 @@ PaErrorCode audio_uninit();
 const char * audio_get_last_error(int id);
 DeviceEnumList* enum_inputs();
 DeviceEnumList* enum_outputs();
-AudioDescriptor *open_audio_channel(int direction, char* hostapi, char *device);
+AudioDescriptor *open_audio_channel(ringb_t *rb, int direction, char* hostapi, char *device);
 PaErrorCode  audio_start_stream (PaStream *stream);
 PaErrorCode  audio_stop_stream (PaStream *stream);
 

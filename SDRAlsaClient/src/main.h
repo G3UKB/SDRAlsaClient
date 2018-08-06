@@ -60,6 +60,7 @@ udp_thread_data *udp_reader_td;
 
 // Prototypes
 int DLL_EXPORT RunClient();
+char* DLL_EXPORT GertLastError();
 
 #ifdef __cplusplus
 }

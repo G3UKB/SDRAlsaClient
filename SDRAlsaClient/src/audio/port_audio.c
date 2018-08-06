@@ -3,7 +3,7 @@ local_audio.c
 
 'C' local sudio control for the SdrScript SDR application
 
-Copyright (C) 2014 by G3UKB Bob Cowdery
+Copyright (C) 2018 by G3UKB Bob Cowdery
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,16 +55,16 @@ PaErrorCode audio_init() {
 	int r = TRUE;
 
 	if (!initialised) {
-	for (i=0 ; i < MAX_STREAMS ; i++) {
-		user_data[i] = (UserData *)NULL;
-		audio_desc[i] = (AudioDescriptor*)NULL;
-	}
+        for (i=0 ; i < MAX_STREAMS ; i++) {
+            user_data[i] = (UserData *)NULL;
+            audio_desc[i] = (AudioDescriptor*)NULL;
+        }
 
-	// Create enum data structure
-	device_enum_list = (DeviceEnumList *)safealloc(sizeof(DeviceEnumList), sizeof(char), "DEVICE_ENUM_STRUCT");
+        // Create enum data structure
+        device_enum_list = (DeviceEnumList *)safealloc(sizeof(DeviceEnumList), sizeof(char), "DEVICE_ENUM_STRUCT");
 
-	r = Pa_Initialize();
-	initialised = TRUE;
+        r = Pa_Initialize();
+        initialised = TRUE;
 	}
 	return r;
 }
@@ -86,7 +86,6 @@ PaErrorCode audio_uninit() {
 	for (i=0 ; i < MAX_STREAMS ; i++) {
 		if (user_data[i] != (UserData *)NULL) {
 			Pa_CloseStream(user_data[i]->stream);
-			ringb_free(user_data[i]->rb);
 		}
 		if (audio_desc[i] != (AudioDescriptor*)NULL) {
 			safefree((char*)audio_desc[i]);
@@ -141,7 +140,7 @@ DeviceEnumList* enum_inputs() {
 	// Iterate the device info by index
 	for( dev=0; dev<numDevices; dev++ ) {
 		deviceInfo = Pa_GetDeviceInfo(dev);
-		if ((deviceInfo->maxInputChannels > 0) && __compatible(dev, DIR_IN, paFloat32, sample_rate, 1)) {
+		if ((deviceInfo->maxInputChannels > 0) && __compatible(dev, DIR_IN, paInt16, sample_rate, 1)) {
 			device_enum_list->devices[index].direction = DIR_IN;
 			device_enum_list->devices[index].index = dev;
 			strcpy(device_enum_list->devices[index].name, deviceInfo->name);
@@ -183,7 +182,7 @@ DeviceEnumList* enum_outputs() {
 	// Iterate the device info by index
 	for( dev=0; dev<numDevices; dev++ ) {
 		deviceInfo = Pa_GetDeviceInfo(dev);
-		if ((deviceInfo->maxOutputChannels > 0) && __compatible(dev, DIR_OUT, paFloat32, sample_rate, 2)) {
+		if ((deviceInfo->maxOutputChannels > 0) && __compatible(dev, DIR_OUT, paInt16, sample_rate, 2)) {
 			device_enum_list->devices[index].direction = DIR_OUT;
 			device_enum_list->devices[index].index = dev;
 			strcpy(device_enum_list->devices[index].name, deviceInfo->name);
@@ -197,7 +196,7 @@ DeviceEnumList* enum_outputs() {
 	return device_enum_list;
 }
 
-AudioDescriptor *open_audio_channel(int direction, char* hostapi, char *device) {
+AudioDescriptor *open_audio_channel(ringb_t *rb, int direction, char* hostapi, char *device) {
 	/* Create an audio channel
 	 *
 	 * Arguments:
@@ -230,9 +229,10 @@ AudioDescriptor *open_audio_channel(int direction, char* hostapi, char *device) 
 	user_data[current_stream]->direction = direction;
 	user_data[current_stream]->last_error = paNoError;
 	// Ring buffer to hold 8 data blocks of L/R samples
-	user_data[current_stream]->rb = ringb_create (1024 * 4 * 32);
+	user_data[current_stream]->rb = rb;
 	// Open portaudio stream
 	if ((stream = open_stream(user_data[current_stream], direction, hostapi, device)) == (AudioDescriptor *)NULL) {
+        user_data[current_stream]->last_error = Pa_GetLastHostErrorInfo()->errorText;
 		return (AudioDescriptor *)NULL;
 	}
 	user_data[current_stream]->stream = stream;

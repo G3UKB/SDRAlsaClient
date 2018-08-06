@@ -31,51 +31,86 @@ static int open_bc_socket();
 static int revert_sd(int sd);
 
 // Module vars
-WSADATA wsa;
-int sd;
-struct sockaddr_in *srv_addr;
+WSADATA wsa;                    // Winsock
+int sd;                         // Socket handle
+struct sockaddr_in *srv_addr;   // Server address structure
+char last_error[128];           // Holder for last error
+char host_api[50];              // Holds the VAC audio api name
+char audio_device[50];          // Holds the VAC audio device name
+AudioDescriptor * audio_desc;   // Returned audio descriptor
 
 // Run the autonomous client system
 int DLL_EXPORT RunClient()
 {
-    int rc;
+    int rc, success;
 
     // Local variables
     int pa_error_code, iq_ring_sz, i;
+    DeviceEnumList* audio_output_list;
 
-    // Initialise the audio system
+    //===========================================================================
+    // Allocate a ring buffer to hold I/Q samples
+    // Note this must be rounded to an acceptable size
+    iq_ring_sz = pow(2, ceil(log(iq_ring_byte_sz)/log(2)));
+    rb_iq = ringb_create (iq_ring_sz);
+
+    //===========================================================================
+    // Initialise the portaudio system
     if((pa_error_code = audio_init()) != paNoError ) {
+        strcpy(last_error, Pa_GetLastErrorInfo()->errorText);
+        return -1;
+    }
+    // Get available output devices
+    audio_output_list = enum_outputs();
+    success = FALSE;
+    for (i=0 ; i<audio_output_list->entries ; i++) {
+        // Looking for a VAC output device
+        if(strstr(audio_output_list->devices[i]->name, "virtual audio cable") != NULL) {
+            strcpy(host_api, audio_output_list->devices[i]->host_api);
+            strcpy(host_api, audio_output_list->devices[i]->name);
+            success = TRUE;
+        }
+    }
+    if (!success) {
+        strcpy(last_error, "Failed to find a compatible VAC output device");
+        return -1;
+    }
+    // Open audio channel
+    if ((audio_desc = open_audio_channel(rb_iq, DIR_OUT, host_api, audio_device)) == (AudioDescriptor *)NULL) {
+        strcpy(last_error, "Failed to open audio channel ");
+        return -1;
+    }
+    // Start the stream
+    // This will now wait on their being something in the ring buffer
+    if (audio_start_stream(audio_desc->stream) != paNoError ) {
+        strcpy(last_error, Pa_GetLastErrorInfo()->errorText);
         return -1;
     }
 
     //===========================================================================
     // Initialise socket lib
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
-    {
-        return WSAGetLastError();
+    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+        strcpy(last_error, WSAGetLastError());
+        return -1;
     }
 
     //===========================================================================
     // Do discovery protocol 1 as per HPSDR
     if((sd = open_bc_socket()) == -1) {
+        strcpy(last_error, "Failed to open broadcast socket for discovery protocol!");
         return -1;
     }
 
     srv_addr = do_discover(sd);
     if (srv_addr == (struct sockaddr_in *)NULL) {
-        printf("Sorry, discovery protocol failed!\n");
-        exit(1);
+        strcpy(last_error, "Sorry, discovery protocol failed! No device found.");
+        return -1;
     }
 
     //===========================================================================
-    // Allocate a ring buffer to hold I/Q samples
-    iq_ring_sz = pow(2, ceil(log(iq_ring_byte_sz)/log(2)));
-    rb_iq = ringb_create (iq_ring_sz);
-
-    //===========================================================================
-    // UDP writer init
+    // Initialise and start the UDP writer
     // Allocate thread data structure
-	udp_writer_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_STRUCT");
+	udp_writer_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_WRITER_STRUCT");
 	// Init with thread data items
 	udp_writer_td->terminate = FALSE;
     udp_writer_td->rb = rb_iq;
@@ -85,13 +120,14 @@ int DLL_EXPORT RunClient()
 	// Create the UDP writer thread
 	rc = pthread_create(&udp_writer_thd, NULL, udp_writer_imp, (void *)udp_writer_td);
 	if (rc){
-        return rc;
+        strcpy(last_error, "Failed to create UDP writer thread!");
+        return -1;
 	}
 
 	//===========================================================================
-    // UDP reader init
+    // Initialise and start the UDP reader
     // Allocate thread data structure
-	udp_reader_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_STRUCT");
+	udp_reader_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_READER_STRUCT");
 	// Init with thread data items
 	udp_reader_td->terminate = FALSE;
     udp_reader_td->rb = rb_iq;
@@ -101,9 +137,17 @@ int DLL_EXPORT RunClient()
 	// Create the UDP writer thread
 	rc = pthread_create(&udp_reader_thd, NULL, udp_reader_imp, (void *)udp_reader_td);
 	if (rc){
-        return rc;
+        strcpy(last_error, "Failed to create UDP reader thread!");
+        return -1;
 	}
+
+	// Finally success
 	return 0;
+}
+
+// Get the error text for the last fail return
+char* DLL_EXPORT GertLastError() {
+    return last_error;
 }
 
 // Open a broadcast socket
