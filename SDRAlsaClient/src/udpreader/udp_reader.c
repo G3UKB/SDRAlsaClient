@@ -32,6 +32,7 @@ static void udprecvdata(int sd, struct sockaddr_in *cliAddr);
 
 // Module vars
 unsigned char frame[METIS_FRAME_SZ];
+ringb_t *rb;                    // The audio ring buffer
 
 // Thread entry point for ALSA processing
 void udp_reader_imp(void* data){
@@ -39,6 +40,7 @@ void udp_reader_imp(void* data){
     udp_thread_data* td = (udp_thread_data*)data;
     int sd = td->socket;
     struct sockaddr_in *srv_addr = td->srv_addr;
+    rb = td->rb;
 
     printf("Started UDP reader thread\n");
 
@@ -59,7 +61,7 @@ static void udprecvdata(int sd, struct sockaddr_in *srvAddr) {
     int i,j,n,as_int;
     unsigned int addr_sz = sizeof(*srvAddr);
     unsigned char acc[USB_DATA_SZ*2];
-    unsigned char data[NUM_SMPLS];
+    unsigned short data[NUM_SMPLS*2];
 
     // Read a frame size data packet
     n = recvfrom(sd, frame, METIS_FRAME_SZ, 0, (struct sockaddr_in *)srvAddr, &addr_sz);
@@ -80,6 +82,10 @@ static void udprecvdata(int sd, struct sockaddr_in *srvAddr) {
             // I data
             data[j] = ((acc[i+2] << 8) | (acc[i+1] << 16) | (acc[i] << 24)) >> 8;
             data[j+1] = ((acc[i+5] << 8) | (acc[i+4] << 16) | (acc[i+3] << 24)) >> 8;
+        }
+        // Add to ring buffer
+        if (ringb_write_space (rb) > NUM_SMPLS*4) {
+            ringb_write (rb, (unsigned char *)data, NUM_SMPLS*4);
         }
     }
 }
