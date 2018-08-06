@@ -31,7 +31,7 @@ The authors can be reached by email at:
 static void udprecvdata(int sd, struct sockaddr_in *cliAddr);
 
 // Module vars
-unsigned char pcdata[METIS_FRAME_SZ];
+unsigned char frame[METIS_FRAME_SZ];
 
 // Thread entry point for ALSA processing
 void udp_reader_imp(void* data){
@@ -54,14 +54,32 @@ void udp_reader_imp(void* data){
 // Read and discard data but extract the tuning frequency
 // Set the FCD to the frequency
 // ToDo - Enhance for other sound card type devices
-static void udprecvdata(int sd, struct sockaddr_in *cliAddr) {
+static void udprecvdata(int sd, struct sockaddr_in *srvAddr) {
 
-    int n;
-    unsigned int addr_sz = sizeof(*cliAddr);
+    int i,j,n,as_int;
+    unsigned int addr_sz = sizeof(*srvAddr);
+    unsigned char acc[USB_DATA_SZ*2];
+    unsigned char data[NUM_SMPLS];
 
     // Read a frame size data packet
-    n = recvfrom(sd, pcdata, METIS_FRAME_SZ, 0, (struct sockaddr_in *)cliAddr, &addr_sz);
+    n = recvfrom(sd, frame, METIS_FRAME_SZ, 0, (struct sockaddr_in *)srvAddr, &addr_sz);
     if(n == METIS_FRAME_SZ) {
-
+        // We have a metis frame
+        // First 8 bytes are the metis header, then 2x512 bytes of
+        // Extract the I/Q data and add to the ring buffer
+        // Get the raw byte sequence I=24bit,Q=24bit,Mic=16bit
+        for (i=START_FRAME_1, j=0 ; i<END_FRAME_1 ; i++, j++) {
+            acc[j] = frame[i];
+        }
+        for (i=START_FRAME_2, j=USB_DATA_SZ ; i<END_FRAME_2 ; i++, j++) {
+            acc[j] = frame[i];
+        }
+        // Extract just the IQ data and convert to 16 bit LE
+        for (i=0,j=0 ; i<USB_DATA_SZ*2 ; i+=8, j+=2) {
+            // We take interleaved 24 bit BE IQ data and convert to 16 bit LE
+            // I data
+            data[j] = ((acc[i+2] << 8) | (acc[i+1] << 16) | (acc[i] << 24)) >> 8;
+            data[j+1] = ((acc[i+5] << 8) | (acc[i+4] << 16) | (acc[i+3] << 24)) >> 8;
+        }
     }
 }

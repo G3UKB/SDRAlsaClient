@@ -57,7 +57,7 @@ int DLL_EXPORT RunClient()
     //===========================================================================
     // Initialise the portaudio system
     if((pa_error_code = audio_init()) != paNoError ) {
-        strcpy(last_error, Pa_GetLastErrorInfo()->errorText);
+        strcpy(last_error, Pa_GetErrorText(pa_error_code));
         return -1;
     }
     // Get available output devices
@@ -65,9 +65,9 @@ int DLL_EXPORT RunClient()
     success = FALSE;
     for (i=0 ; i<audio_output_list->entries ; i++) {
         // Looking for a VAC output device
-        if(strstr(audio_output_list->devices[i]->name, "virtual audio cable") != NULL) {
-            strcpy(host_api, audio_output_list->devices[i]->host_api);
-            strcpy(host_api, audio_output_list->devices[i]->name);
+        if(strstr(audio_output_list->devices[i].name, "virtual audio cable") != NULL) {
+            strcpy(host_api, audio_output_list->devices[i].host_api);
+            strcpy(host_api, audio_output_list->devices[i].name);
             success = TRUE;
         }
     }
@@ -82,8 +82,8 @@ int DLL_EXPORT RunClient()
     }
     // Start the stream
     // This will now wait on their being something in the ring buffer
-    if (audio_start_stream(audio_desc->stream) != paNoError ) {
-        strcpy(last_error, Pa_GetLastErrorInfo()->errorText);
+    if ((pa_error_code = audio_start_stream(audio_desc->stream)) != paNoError ) {
+        strcpy(last_error, Pa_GetErrorText(pa_error_code));
         return -1;
     }
 

@@ -38,6 +38,9 @@ The authors can be reached by email at:
 #define FALSE 0
 
 #define METIS_FRAME_SZ 1032
+#define USB_DATA_SZ 504
+#define NUM_SMPLS 126
+
 // Allow 10 writes of 1024 IQ samples
 #define iq_ring_byte_sz 10*1024*4
 
