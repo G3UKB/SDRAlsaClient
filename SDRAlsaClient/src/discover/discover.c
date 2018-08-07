@@ -47,12 +47,15 @@ struct sockaddr_in *do_discover(int sd) {
     msg[0] = 0xEF;
     msg[1] = 0xFE;
     msg[2] = 0x02;
+
     // Set BC address
-    bcAddr.sin_addr.s_addr = inet_addr("255.255.255.255");
-    bcAddr.sin_port = REMOTE_SERVER_PORT;
+    memset((char *) &bcAddr, 0, sizeof(bcAddr));
+    bcAddr.sin_family = AF_INET;
+    bcAddr.sin_addr.S_un.S_addr = inet_addr("255.255.255.255");
+    bcAddr.sin_port = htons(REMOTE_SERVER_PORT);
+
     // Dispatch
-    if (sendto(sd, resp, MAX_RESP, 0, (struct sockaddr*) &bcAddr, sizeof(bcAddr)) == -1)
-    {
+    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) &bcAddr, sizeof(bcAddr)) == -1) {
         return (struct sockaddr_in *)NULL;
     }
 

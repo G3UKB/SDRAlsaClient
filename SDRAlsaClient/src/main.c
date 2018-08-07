@@ -69,7 +69,6 @@ int DLL_EXPORT RunClient()
             if(strstr(audio_output_list->devices[i].host_api, "MME") != NULL) {
                 strcpy(host_api, audio_output_list->devices[i].host_api);
                 strcpy(audio_device, audio_output_list->devices[i].name);
-                //printf("Selected %s,%s,%d\n", host_api, audio_device, audio_output_list->devices[i].channels);
                 success = TRUE;
             }
         }
@@ -144,6 +143,9 @@ int DLL_EXPORT RunClient()
         return -1;
 	}
 
+	//===========================================================================
+    // Send a start message
+
 	// Finally success
 	return 0;
 }
@@ -160,7 +162,7 @@ static int open_bc_socket() {
     struct sockaddr_in serv_addr;
 
     // Create socket
-    sd=socket(AF_INET, SOCK_DGRAM, 0);
+    sd=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sd<0) {
         return -1;
     }

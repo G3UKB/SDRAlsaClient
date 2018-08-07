@@ -26,7 +26,7 @@ The authors can be reached by email at:
 
 /* Constants */
 #define REMOTE_SERVER_PORT 1024
-#define MAX_MSG 100
+#define MAX_MSG 63
 #define MAX_RESP 60
 #define DISCOVERY_MSG 0
 #define START_MSG 1
