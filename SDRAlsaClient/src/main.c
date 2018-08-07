@@ -65,10 +65,13 @@ int DLL_EXPORT RunClient()
     success = FALSE;
     for (i=0 ; i<audio_output_list->entries ; i++) {
         // Looking for a VAC output device
-        if(strstr(audio_output_list->devices[i].name, "virtual audio cable") != NULL) {
-            strcpy(host_api, audio_output_list->devices[i].host_api);
-            strcpy(host_api, audio_output_list->devices[i].name);
-            success = TRUE;
+        if(strstr(audio_output_list->devices[i].name, "Line 1 (Virtual Audio Cable)") != NULL) {
+            if(strstr(audio_output_list->devices[i].host_api, "MME") != NULL) {
+                strcpy(host_api, audio_output_list->devices[i].host_api);
+                strcpy(audio_device, audio_output_list->devices[i].name);
+                //printf("Selected %s,%s,%d\n", host_api, audio_device, audio_output_list->devices[i].channels);
+                success = TRUE;
+            }
         }
     }
     if (!success) {

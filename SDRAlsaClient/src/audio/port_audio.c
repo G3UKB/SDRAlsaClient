@@ -302,13 +302,8 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 		deviceInfo = Pa_GetDeviceInfo(dev);
 		if ((strcmp(deviceInfo->name, device) == 0) && (strcmp(Pa_GetHostApiInfo(deviceInfo->hostApi)->name, hostapi) == 0)) {
 			// Found our device on the correct hostapi
-			// Check we can support the direction
-			if (((direction == DIR_IN) && (deviceInfo->maxInputChannels <= 0)) || ((direction == DIR_OUT) && (deviceInfo->maxOutputChannels <= 0))) {
-				paud->last_error = paDeviceUnavailable;
-				return (PaStream *)NULL;
-			}
 			// Set up the parameters to open the stream
-			if (direction == DIR_IN) {
+			if ((direction == DIR_IN) && (deviceInfo->maxInputChannels > 0)) {
 				memset (&inputParameters, 0, sizeof (inputParameters));
 				inputParameters.channelCount = 1;
 				inputParameters.device = dev;
@@ -332,7 +327,7 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 							paNoFlag,
 							pa_stream_callback,
 							(void *)paud );
-			} else {
+			} else if ((direction == DIR_OUT) && (deviceInfo->maxOutputChannels > 0)) {
 				memset (&outputParameters, 0, sizeof (outputParameters));
 				outputParameters.channelCount = 2;
 				outputParameters.device = dev;
@@ -356,12 +351,10 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 							pa_stream_callback,
 							(void *)paud );
 			}
-
-			if (err == paNoError)
-				return stream;
-			return (PaStream *)NULL;
 		}
 	}
+	if (err == paNoError)
+        return stream;
 	return (PaStream *)NULL;
 }
 
