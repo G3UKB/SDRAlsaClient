@@ -57,10 +57,9 @@ typedef struct udp_thread_data {
 udp_thread_data *udp_writer_td;
 udp_thread_data *udp_reader_td;
 
-
 // Prototypes
 int DLL_EXPORT RunClient();
-char* DLL_EXPORT GertLastError();
+char* DLL_EXPORT AppLastError();
 
 #ifdef __cplusplus
 }

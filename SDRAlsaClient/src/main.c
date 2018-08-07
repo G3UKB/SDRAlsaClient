@@ -146,7 +146,7 @@ int DLL_EXPORT RunClient()
 }
 
 // Get the error text for the last fail return
-char* DLL_EXPORT GertLastError() {
+char* DLL_EXPORT AppLastError() {
     return last_error;
 }
 

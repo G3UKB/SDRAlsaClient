@@ -27,11 +27,8 @@ The authors can be reached by email at:
 #ifndef _defs_h
 #define _defs_h
 
-#ifdef BUILD_DLL
-    #define DLL_EXPORT __declspec(dllexport)
-#else
-    #define DLL_EXPORT __declspec(dllimport)
-#endif
+#define DLL_EXPORT __declspec(dllexport)
+//#define DLL_EXPORT __stdcall
 
 // Defines
 #define TRUE 1
@@ -40,6 +37,10 @@ The authors can be reached by email at:
 #define METIS_FRAME_SZ 1032
 #define USB_DATA_SZ 504
 #define NUM_SMPLS 126
+#define START_FRAME_1 16
+#define END_FRAME_1 520
+#define START_FRAME_2 528
+#define END_FRAME_2 1032
 
 // Allow 10 writes of 1024 IQ samples
 #define iq_ring_byte_sz 10*1024*4
