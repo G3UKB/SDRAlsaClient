@@ -21,6 +21,16 @@ namespace SDRAlsaConsole
                 string s = Marshal.PtrToStringAnsi(AppLastError());
                 Console.WriteLine("Error: {0}", s);
             }
+
+            Console.WriteLine("Press ESC to stop");
+            do
+            {
+                while (!Console.KeyAvailable)
+                {
+                    // Do something
+                }
+            } while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+
             Console.WriteLine("Exiting...");
         }
     }

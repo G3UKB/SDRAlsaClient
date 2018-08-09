@@ -63,8 +63,43 @@ struct sockaddr_in *do_discover(int sd) {
     return udprecvcontrol(sd);
 }
 
+// Start streaming
+int do_start(int sd, struct sockaddr_in *svrAddr) {
+    // Send start message
+    // Clear message buffer
+    memset(msg,0x0,MAX_MSG);
+    msg[0] = 0xEF;
+    msg[1] = 0xFE;
+    msg[2] = 0x04;
+    msg[3] = 0x01;
+
+    // Dispatch
+    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+// Stop streaming
+int do_stop(int sd, struct sockaddr_in *svrAddr) {
+    // Send stop message
+    // Clear message buffer
+    memset(msg,0x0,MAX_MSG);
+    msg[0] = 0xEF;
+    msg[1] = 0xFE;
+    msg[2] = 0x04;
+
+    // Dispatch
+    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 // Receive one packet from the client
-static struct sockaddr_in * udprecvcontrol(int sd) {
+static struct sockaddr_in *udprecvcontrol(int sd) {
     int n;
     unsigned int svrLen = sizeof(svrAddr);
 

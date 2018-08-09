@@ -144,7 +144,8 @@ int DLL_EXPORT RunClient()
 	}
 
 	//===========================================================================
-    // Send a start message
+    // Send a start message to start streaming
+    do_start(sd, srv_addr);
 
 	// Finally success
 	return 0;

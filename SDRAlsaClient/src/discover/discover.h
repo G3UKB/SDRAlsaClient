@@ -37,4 +37,5 @@ The authors can be reached by email at:
 
 // Prototypes
 struct sockaddr_in *do_discover();
-//struct sockaddr_in * udprecvcontrol(int sd);;
+int do_start(int sd, struct sockaddr_in *svrAddr);
+int do_stop(int sd, struct sockaddr_in *svrAddr);
