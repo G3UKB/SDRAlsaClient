@@ -39,7 +39,6 @@ static struct sockaddr_in * udprecvcontrol(int sd);
 
 // Discover protocol
 struct sockaddr_in *do_discover(int sd) {
-    int rc, udpmsg;
 
     // Send discovery message
     // Clear message buffer
@@ -55,7 +54,7 @@ struct sockaddr_in *do_discover(int sd) {
     bcAddr.sin_port = htons(REMOTE_SERVER_PORT);
 
     // Dispatch
-    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) &bcAddr, sizeof(bcAddr)) == -1) {
+    if (sendto(sd, (const char*)msg, MAX_MSG, 0, (const struct sockaddr*) &bcAddr, sizeof(bcAddr)) == -1) {
         return (struct sockaddr_in *)NULL;
     }
 
@@ -74,7 +73,7 @@ int do_start(int sd, struct sockaddr_in *svrAddr) {
     msg[3] = 0x01;
 
     // Dispatch
-    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
+    if (sendto(sd, (const char*)msg, MAX_MSG, 0, (const struct sockaddr*) svrAddr, sizeof(*svrAddr)) == -1) {
         return FALSE;
     }
 
@@ -91,7 +90,7 @@ int do_stop(int sd, struct sockaddr_in *svrAddr) {
     msg[2] = 0x04;
 
     // Dispatch
-    if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
+    if (sendto(sd, (const char*)msg, MAX_MSG, 0, (const struct sockaddr*) svrAddr, sizeof(*svrAddr)) == -1) {
         return FALSE;
     }
 
@@ -101,12 +100,12 @@ int do_stop(int sd, struct sockaddr_in *svrAddr) {
 // Receive one packet from the client
 static struct sockaddr_in *udprecvcontrol(int sd) {
     int n;
-    unsigned int svrLen = sizeof(svrAddr);
+    int svrLen = sizeof(svrAddr);
 
     // Clear message buffer
     memset(msg,0x0,MAX_MSG);
     // receive message
-    n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &svrAddr, &svrLen);
+    n = recvfrom(sd, (char*)msg, MAX_MSG, 0, (struct sockaddr *) &svrAddr, &svrLen);
 
     if(n<0)
         return (struct sockaddr_in *)NULL;

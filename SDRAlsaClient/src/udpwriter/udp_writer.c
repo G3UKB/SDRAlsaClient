@@ -32,9 +32,9 @@ unsigned char packet_buffer[METIS_FRAME_SZ];
 
 // Local functions
 static void set_metis_header(unsigned char *buffer);
-static int fcd_get_freq();
+static unsigned int fcd_get_freq();
 static void set_usb_header(int offset, unsigned char *buffer);
-static void set_freq(int offset, int freq, unsigned char *buffer);
+static void set_freq(int offset, unsigned int freq, unsigned char *buffer);
 
 // Module vars
 pthread_mutex_t fcd_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -42,19 +42,18 @@ int freq_hz;
 int last_freq = -1;
 
 // Safe set frequency
-void fcd_set_freq(int f) {
+void fcd_set_freq(unsigned int f) {
     pthread_mutex_lock(&fcd_mutex);
     freq_hz = f;
     pthread_mutex_unlock(&fcd_mutex);
 }
 
 // Thread entry point for UDP writer processing
-void udp_writer_imp(void* data){
+void *udp_writer_imp(void* data){
     unsigned int new_freq;
 
     // Get our thread parameters
     udp_thread_data* td = (udp_thread_data*)data;
-    ringb_t *rb = td->rb;
     int sd = td->socket;
     struct sockaddr_in *srv_addr = td->srv_addr;
 
@@ -73,12 +72,13 @@ void udp_writer_imp(void* data){
             set_freq(USB_FREQ_2, new_freq, packet_buffer);
 
             // Dispatch
-            if (sendto(sd, packet_buffer, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
-                return FALSE;
+            if (sendto(sd, (const char*)packet_buffer, MAX_MSG, 0, (struct sockaddr*) srv_addr, sizeof(*srv_addr)) == -1) {
+                printf("UDP dispatch failed!\n");
             }
         }
     }
     printf("UDP Writer thread exiting...\n");
+    return NULL;
 }
 
 //===================================================================
@@ -97,7 +97,7 @@ static void set_usb_header(int offset, unsigned char *buffer) {
     buffer[offset+2] = 0x7f;
 }
 // Set frequency bytes for RX1
-static void set_freq(int offset, int freq, unsigned char *buffer) {
+static void set_freq(int offset, unsigned int freq, unsigned char *buffer) {
     buffer[offset] = 0x02;  // Freq RX1
     // Pack as big endian
     buffer[offset+1] = (freq >> 24) & 0xff;
@@ -107,7 +107,7 @@ static void set_freq(int offset, int freq, unsigned char *buffer) {
 }
 
 // Safe get frequency
-static int fcd_get_freq() {
+static unsigned int fcd_get_freq() {
     int f;
     pthread_mutex_lock(&fcd_mutex);
     f = freq_hz;

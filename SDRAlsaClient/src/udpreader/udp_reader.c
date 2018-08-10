@@ -35,7 +35,7 @@ unsigned char frame[METIS_FRAME_SZ];
 ringb_t *rb;                    // The audio ring buffer
 
 // Thread entry point for ALSA processing
-void udp_reader_imp(void* data){
+void *udp_reader_imp(void* data){
     // Get our thread parameters
     udp_thread_data* td = (udp_thread_data*)data;
     int sd = td->socket;
@@ -50,6 +50,7 @@ void udp_reader_imp(void* data){
     }
 
     printf("UDP Reader thread exiting...\n");
+    return NULL;
 }
 
 
@@ -58,13 +59,13 @@ void udp_reader_imp(void* data){
 // ToDo - Enhance for other sound card type devices
 static void udprecvdata(int sd, struct sockaddr_in *srvAddr) {
 
-    int i,j,n,as_int;
-    unsigned int addr_sz = sizeof(*srvAddr);
+    int i,j,n;
+    int addr_sz = sizeof(*srvAddr);
     unsigned char acc[USB_DATA_SZ*2];
     unsigned short data[NUM_SMPLS*2];
 
     // Read a frame size data packet
-    n = recvfrom(sd, frame, METIS_FRAME_SZ, 0, (struct sockaddr_in *)srvAddr, &addr_sz);
+    n = recvfrom(sd, (char*)frame, METIS_FRAME_SZ, 0, (struct sockaddr*)srvAddr, &addr_sz);
     if(n == METIS_FRAME_SZ) {
         // We have a metis frame
         // First 8 bytes are the metis header, then 2x512 bytes of
@@ -85,7 +86,7 @@ static void udprecvdata(int sd, struct sockaddr_in *srvAddr) {
         }
         // Add to ring buffer
         if (ringb_write_space (rb) > NUM_SMPLS*4) {
-            ringb_write (rb, (unsigned char *)data, NUM_SMPLS*4);
+            ringb_write (rb, (const char *)data, NUM_SMPLS*4);
         }
     }
 }

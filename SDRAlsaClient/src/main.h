@@ -60,6 +60,7 @@ udp_thread_data *udp_reader_td;
 // Prototypes
 int DLL_EXPORT RunClient();
 char* DLL_EXPORT AppLastError();
+void DLL_EXPORT SetFreq(unsigned int freq_in_hz);
 
 #ifdef __cplusplus
 }

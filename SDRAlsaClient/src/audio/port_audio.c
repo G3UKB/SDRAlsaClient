@@ -110,7 +110,7 @@ const char * audio_get_last_error(int id) {
 	 * 		id	--	the stream id
 	 */
 
-	return Pa_GetErrorText(user_data[id]->last_error);
+	return user_data[id]->last_error;
 }
 
 DeviceEnumList* enum_inputs() {
@@ -227,12 +227,12 @@ AudioDescriptor *open_audio_channel(ringb_t *rb, int direction, char* hostapi, c
 	// Create and populate a UserData structure
 	user_data[current_stream] = (UserData *)safealloc(sizeof(UserData), sizeof(char), "AUDIO_USER_DATA");
 	user_data[current_stream]->direction = direction;
-	user_data[current_stream]->last_error = paNoError;
+	strcpy(user_data[current_stream]->last_error, "");
 	// Ring buffer to hold 8 data blocks of L/R samples
 	user_data[current_stream]->rb = rb;
 	// Open portaudio stream
 	if ((stream = open_stream(user_data[current_stream], direction, hostapi, device)) == (AudioDescriptor *)NULL) {
-        user_data[current_stream]->last_error = Pa_GetLastHostErrorInfo()->errorText;
+        strcpy(user_data[current_stream]->last_error, Pa_GetLastHostErrorInfo()->errorText);
 		return (AudioDescriptor *)NULL;
 	}
 	user_data[current_stream]->stream = stream;
@@ -294,7 +294,7 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 	// Get the number of devices
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 ) {
-		paud->last_error = paInvalidChannelCount;
+		strcpy(paud->last_error, "Invalid channel count");
 		return (PaStream *)NULL;
 	}
 	// Iterate the device info by index
@@ -314,7 +314,7 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 				// Check we can support the sample rate
 				err = Pa_IsFormatSupported(&inputParameters, NULL, sample_rate);
 				if (err != paFormatIsSupported) {
-					paud->last_error = paInvalidSampleRate;
+					strcpy(paud->last_error, "Invalid sample rate!");
 					return (PaStream *)NULL;
 				}
 				// Open stream
@@ -337,7 +337,7 @@ static PaStream* open_stream(UserData *paud, int direction, char* hostapi, char 
 				outputParameters.hostApiSpecificStreamInfo = NULL;
 				err = Pa_IsFormatSupported(NULL, &outputParameters, sample_rate);
 				if (err != paFormatIsSupported) {
-					paud->last_error = paInvalidSampleRate;
+					strcpy(paud->last_error, "Invalid sample rate!");
 					return (PaStream *)NULL;
 				}
 				// Open stream

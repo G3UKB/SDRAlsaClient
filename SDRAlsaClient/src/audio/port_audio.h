@@ -37,7 +37,7 @@ typedef struct UserData {
 	ringb_t *rb;
 	int direction;
 	PaStream* stream;
-	int last_error;
+	char last_error[128];
 }UserData;
 
 // Returned by open_audio_channel

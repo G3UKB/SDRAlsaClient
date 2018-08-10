@@ -92,7 +92,7 @@ int DLL_EXPORT RunClient()
     //===========================================================================
     // Initialise socket lib
     if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
-        strcpy(last_error, WSAGetLastError());
+        strcpy(last_error, "Failed to initialise winsock!");
         return -1;
     }
 
@@ -108,6 +108,10 @@ int DLL_EXPORT RunClient()
         strcpy(last_error, "Sorry, discovery protocol failed! No device found.");
         return -1;
     }
+
+    //===========================================================================
+    // Reset to a normal socket
+    revert_sd(sd);
 
     //===========================================================================
     // Initialise and start the UDP writer
@@ -151,6 +155,12 @@ int DLL_EXPORT RunClient()
 	return 0;
 }
 
+// Set the frequency
+void DLL_EXPORT SetFreq(unsigned int freq_in_hz)
+{
+    fcd_set_freq(freq_in_hz);
+}
+
 // Get the error text for the last fail return
 char* DLL_EXPORT AppLastError() {
     return last_error;
@@ -158,9 +168,8 @@ char* DLL_EXPORT AppLastError() {
 
 // Open a broadcast socket
 static int open_bc_socket() {
-    int sd, rc;
-    int  broadcast = 1;
-    struct sockaddr_in serv_addr;
+    int sd;
+    int broadcast = 1;
 
     // Create socket
     sd=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -169,7 +178,7 @@ static int open_bc_socket() {
     }
 
     // Set to broadcast
-    if (setsockopt(sd, SOL_SOCKET, SO_BROADCAST, &broadcast,sizeof broadcast) == -1) {
+    if (setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof broadcast) == -1) {
         return -1;
     }
 
@@ -186,22 +195,22 @@ static int revert_sd(int sd) {
     tv.tv_usec = 10;
 
     // Turn off broadcast
-    if (setsockopt(sd, SOL_SOCKET, SO_BROADCAST, &broadcast,sizeof broadcast) == -1) {
+    if (setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (const char*)&broadcast, sizeof broadcast) == -1) {
         printf("Failed to set option SO_BROADCAST!\n");
         return FALSE;
     }
     // Set send buffer size
-    if (setsockopt(sd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff)) == -1) {
+    if (setsockopt(sd, SOL_SOCKET, SO_SNDBUF, (const char*)&sendbuff, sizeof(sendbuff)) == -1) {
          printf("Failed to set option SO_SNDBUF!\n");
         return FALSE;
     }
     // Set receive buffer size
-    if (setsockopt(sd, SOL_SOCKET, SO_RCVBUF, &recvbuff, sizeof(recvbuff)) == -1) {
+    if (setsockopt(sd, SOL_SOCKET, SO_RCVBUF, (const char*)&recvbuff, sizeof(recvbuff)) == -1) {
          printf("Failed to set option SO_RCVBUF!\n");
         return FALSE;
     }
     // Set receive timeout
-    if (setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv) == -1) {
+    if (setsockopt(sd, SOL_SOCKET, SO_RCVTIMEO, (const const char*)&tv, sizeof tv) == -1) {
          printf("Failed to set option SO_RCVTIMEO!\n");
         return FALSE;
     }
