@@ -41,6 +41,10 @@ The authors can be reached by email at:
 #define END_FRAME_1 520
 #define START_FRAME_2 528
 #define END_FRAME_2 1032
+#define USB_SYNC_1 8
+#define USB_FREQ_1 11
+#define USB_SYNC_2 512 + 8
+#define USB_FREQ_2 512 + 11
 
 // Allow 10 writes of 1024 IQ samples
 #define iq_ring_byte_sz 10*1024*4

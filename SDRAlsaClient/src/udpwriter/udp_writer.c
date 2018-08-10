@@ -28,10 +28,13 @@ The authors can be reached by email at:
 #include "../common/include.h"
 
 short *smpl_buffer;
-unsigned char *packet_buffer;
+unsigned char packet_buffer[METIS_FRAME_SZ];
 
 // Local functions
+static void set_metis_header(unsigned char *buffer);
 static int fcd_get_freq();
+static void set_usb_header(int offset, unsigned char *buffer);
+static void set_freq(int offset, int freq, unsigned char *buffer);
 
 // Module vars
 pthread_mutex_t fcd_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -45,7 +48,7 @@ void fcd_set_freq(int f) {
     pthread_mutex_unlock(&fcd_mutex);
 }
 
-// Thread entry point for ALSA processing
+// Thread entry point for UDP writer processing
 void udp_writer_imp(void* data){
     unsigned int new_freq;
 
@@ -62,35 +65,45 @@ void udp_writer_imp(void* data){
         if (new_freq != last_freq){
             // We have a frequency change
             // Format the message
-            memset(msg,0x0,MAX_MSG);
-            msg[0] = 0xEF;
-            msg[1] = 0xFE;
-            msg[2] = 0x01;
-            msg[3] = 0x02;
-            msg[8] = 0x7f;
-            msg[9] = 0x7f;
-            msg[10] = 0x7f;
-            msg[11] = 0x02;
-            msg[12] = (new_freq >> 24) & 0xff;
-            msg[13] = (new_freq >> 16) & 0xff;
-            msg[14] = (new_freq >> 8) & 0xff;
-            msg[15] = new_freq & 0xff;
-            msg[8+512] = 0x7f;
-            msg[9+512] = 0x7f;
-            msg[10+512] = 0x7f;
-            msg[11+512] = 0x02;
-            msg[12+512] = (new_freq >> 24) & 0xff;
-            msg[13+512] = (new_freq >> 16) & 0xff;
-            msg[14+512] = (new_freq >> 8) & 0xff;
-            msg[15+512] = new_freq & 0xff;
+            memset(packet_buffer,0x0,METIS_FRAME_SZ);
+            set_metis_header(packet_buffer);
+            set_usb_header(USB_SYNC_1, packet_buffer);
+            set_freq(USB_FREQ_1, new_freq, packet_buffer);
+            set_usb_header(USB_SYNC_2, packet_buffer);
+            set_freq(USB_FREQ_2, new_freq, packet_buffer);
 
             // Dispatch
-            if (sendto(sd, msg, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
+            if (sendto(sd, packet_buffer, MAX_MSG, 0, (struct sockaddr_in*) svrAddr, sizeof(*svrAddr)) == -1) {
                 return FALSE;
             }
         }
     }
     printf("UDP Writer thread exiting...\n");
+}
+
+//===================================================================
+// Private functions
+// Set Metis header bytes
+static void set_metis_header(unsigned char *buffer) {
+    buffer[0] = 0xEF;
+    buffer[1] = 0xFE;
+    buffer[2] = 0x01;   //Commasnd byte
+    buffer[3] = 0x02;   // Endpoint
+}
+// Set UDP sync bytes
+static void set_usb_header(int offset, unsigned char *buffer) {
+    buffer[offset] = 0x7f;
+    buffer[offset+1] = 0x7f;
+    buffer[offset+2] = 0x7f;
+}
+// Set frequency bytes for RX1
+static void set_freq(int offset, int freq, unsigned char *buffer) {
+    buffer[offset] = 0x02;  // Freq RX1
+    // Pack as big endian
+    buffer[offset+1] = (freq >> 24) & 0xff;
+    buffer[offset+2] = (freq >> 16) & 0xff;
+    buffer[offset+3] = (freq >> 8) & 0xff;
+    buffer[offset+4] = freq & 0xff;
 }
 
 // Safe get frequency
