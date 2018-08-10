@@ -16,6 +16,7 @@ namespace SDRSharp.SDRAlsaPlugin
         private const string _displayName = "SDRAlsa";
         private ISharpControl _controlInterface;
         private UserControl1 _panel;
+        private FreqProcessor _freqProcessor;
 
         [DllImport("E:\\Projects\\SDRAlsaClient\\trunk\\SDRAlsaClient\\bin\\Debug\\SDRAlsaClient.dll")]
         private static extern int RunClient();
@@ -41,6 +42,7 @@ namespace SDRSharp.SDRAlsaPlugin
             _controlInterface = control;
             _panel = new UserControl1(_controlInterface);
 
+            /*
             int r = RunClient();
             if (r == -1)
             {
@@ -48,6 +50,8 @@ namespace SDRSharp.SDRAlsaPlugin
                 //Console.WriteLine("Error: {0}", s);
                 MessageBox.Show(s, "Error", MessageBoxButtons.OK);
             }
+            */
+            _freqProcessor = new FreqProcessor(_controlInterface);
         }
     }
 }
