@@ -106,7 +106,6 @@ static struct sockaddr_in *udprecvcontrol(int sd) {
     memset(msg,0x0,MAX_MSG);
     // receive message
     n = recvfrom(sd, (char*)msg, MAX_MSG, 0, (struct sockaddr *) &svrAddr, &svrLen);
-
     if(n<0)
         return (struct sockaddr_in *)NULL;
     return &svrAddr;

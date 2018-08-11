@@ -60,6 +60,7 @@ int DLL_EXPORT RunClient()
         strcpy(last_error, Pa_GetErrorText(pa_error_code));
         return -1;
     }
+
     // Get available output devices
     audio_output_list = enum_outputs();
     success = FALSE;
@@ -73,15 +74,18 @@ int DLL_EXPORT RunClient()
             }
         }
     }
+
     if (!success) {
         strcpy(last_error, "Failed to find a compatible VAC output device");
         return -1;
     }
+
     // Open audio channel
     if ((audio_desc = open_audio_channel(rb_iq, DIR_OUT, host_api, audio_device)) == (AudioDescriptor *)NULL) {
         strcpy(last_error, "Failed to open audio channel ");
         return -1;
     }
+
     // Start the stream
     // This will now wait on their being something in the ring buffer
     if ((pa_error_code = audio_start_stream(audio_desc->stream)) != paNoError ) {

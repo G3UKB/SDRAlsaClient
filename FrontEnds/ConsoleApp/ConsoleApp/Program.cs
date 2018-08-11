@@ -12,6 +12,8 @@ namespace SDRAlsaConsole
         private static extern int RunClient();
         [DllImport("E:\\Projects\\SDRAlsaClient\\trunk\\SDRAlsaClient\\bin\\Debug\\SDRAlsaClient.dll")]
         private static extern IntPtr AppLastError();
+        [DllImport("E:\\Projects\\SDRAlsaClient\\trunk\\SDRAlsaClient\\bin\\Debug\\SDRAlsaClient.dll")]
+        private static extern void SetFreq(int f);
 
         static void Main(string[] args)
         {
@@ -21,6 +23,8 @@ namespace SDRAlsaConsole
                 string s = Marshal.PtrToStringAnsi(AppLastError());
                 Console.WriteLine("Error: {0}", s);
             }
+
+            SetFreq(7000000);
 
             Console.WriteLine("Press ESC to stop");
             do
