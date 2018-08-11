@@ -27,8 +27,8 @@
 \ needs debug/trace
 \ ( "EXCEPT: " . . cr bye ) w:is handler
 
-\ Define our SDR namespace
-ns: sdr.alsa
+\ Define our FCD namespace
+ns: fcd
 
 \ Set our app name
 "SDRAlsaClient" appname !
@@ -53,23 +53,23 @@ false var, deploy_mode
 ;
 do_includes
 
-: sdr:task_wait \ key item --
+: fcd:task_wait \ key item --
 	"Waiting for task " . over . cr
 	t:wait
 ;
 
-: sdr:cleanup
+: fcd:cleanup
 	"Shutdown in progress" log
 	
 	\ Terminate tasks
 	
 	\ Wait for all tasks to exit
-	sdr:task_dict @ ' sdr:task_wait m:each
-	1 sleep
-	"DynamicSDR exiting..." log
-	1 sleep
+	\ sdr:task_dict @ ' sdr:task_wait m:each
+	\ 1 sleep
+	\ "DynamicSDR exiting..." log
+	\ 1 sleep
 ;
-  
+
 : app:main
 	"MainThrd" t:name!
 	t:curtask . cr
@@ -82,9 +82,10 @@ do_includes
 	\ ===================================================
 	\ MAIN WINDOW
 	\ Create main window
-	sdr.alsa:main_window_obj @ g:new
+	fcd:main_window_obj @ g:new
 	\ Store main window GUI
-	sdr.alsa:main_window !
+	fcd:main_window !
+	fcd:main_window_init
 	
   \ ===================================================
   \ C INTERFACE
@@ -96,7 +97,7 @@ do_includes
   
 	\ ===================================================
   \ Set our cleanup word
-  ' sdr:cleanup onexit
+  ' fcd:cleanup onexit
   \ On exit the GUI event loop is started
 ;
 	

@@ -72,7 +72,8 @@ void *udp_writer_imp(void* data){
             set_freq(USB_FREQ_2, new_freq, packet_buffer);
 
             // Dispatch
-            if (sendto(sd, (const char*)packet_buffer, MAX_MSG, 0, (struct sockaddr*) srv_addr, sizeof(*srv_addr)) == -1) {
+            //printf("Freq: %d\n", new_freq);
+            if (sendto(sd, (const char*)packet_buffer, METIS_FRAME_SZ, 0, (struct sockaddr*) srv_addr, sizeof(*srv_addr)) == -1) {
                 printf("UDP dispatch failed!\n");
             }
         }

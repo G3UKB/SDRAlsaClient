@@ -1,9 +1,9 @@
 (*
 	vfo.8th
  
-  VFO component for the DynamicSDR application
+  VFO component for the SDRAlsaClient application
  
- Copyright C 2017 by G3UKB Bob Cowdery
+ Copyright C 2018 by G3UKB Bob Cowdery
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
@@ -23,7 +23,7 @@
 *)
 
 \ Use SDR namespace
-ns: sdr
+ns: fcd
   
 \ ============================================================================
 \ User draw components
@@ -35,7 +35,7 @@ ns: sdr
   "fg" : "gray96",
   "bg" : "gray10",
   "rot" : 0,
-  "draw" : "sdr:digit_draw"
+  "draw" : "fcd:digit_draw"
 } var, vfo_digit
 
 \ ========================================
@@ -45,7 +45,7 @@ ns: sdr
   "fg" : "lightcoral",
   "bg" : "gray10",
   "rot" : 0,
-  "draw" : "sdr:sep_draw"
+  "draw" : "fcd:sep_draw"
 } var, vfo_separator
 
 \ ========================================
@@ -61,7 +61,7 @@ ns: sdr
   "bg" : "gray10",
   "rot" : 0,
   "font" : "Arial 14",
-  "draw" : "sdr:vfo_draw",
+  "draw" : "fcd:vfo_draw",
   "children" : [
 		{
 			"kind" : "Digit",
@@ -71,9 +71,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 0 0 10 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_100_MHz",
-			"mouse-exit" : "sdr:mouseexit_100_MHz",
-			"mouse-enter" : "sdr:mouseenter_100_MHz"
+			"mouse-wheel" : "fcd:wheel_100_MHz",
+			"mouse-exit" : "fcd:mouseexit_100_MHz",
+			"mouse-enter" : "fcd:mouseenter_100_MHz"
 		},
 		{
 			"kind" : "Digit",
@@ -83,9 +83,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 10 0 20 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_10_MHz",
-			"mouse-exit" : "sdr:mouseexit_10_MHz",
-			"mouse-enter" : "sdr:mouseenter_10_MHz"
+			"mouse-wheel" : "fcd:wheel_10_MHz",
+			"mouse-exit" : "fcd:mouseexit_10_MHz",
+			"mouse-enter" : "fcd:mouseenter_10_MHz"
 		},
 		{
 			"kind" : "Digit",
@@ -95,9 +95,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 20 0 30 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_1_MHz",
-			"mouse-exit" : "sdr:mouseexit_1_MHz",
-			"mouse-enter" : "sdr:mouseenter_1_MHz"
+			"mouse-wheel" : "fcd:wheel_1_MHz",
+			"mouse-exit" : "fcd:mouseexit_1_MHz",
+			"mouse-enter" : "fcd:mouseenter_1_MHz"
 		},
 		{
 		  "kind" : "Separator",
@@ -112,9 +112,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 35 0 45 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_100_KHz",
-			"mouse-exit" : "sdr:mouseexit_100_KHz",
-			"mouse-enter" : "sdr:mouseenter_100_KHz"
+			"mouse-wheel" : "fcd:wheel_100_KHz",
+			"mouse-exit" : "fcd:mouseexit_100_KHz",
+			"mouse-enter" : "fcd:mouseenter_100_KHz"
 		},
 		{
 			"kind" : "Digit",
@@ -124,9 +124,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 45 0 55 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_10_KHz",
-			"mouse-exit" : "sdr:mouseexit_10_KHz",
-			"mouse-enter" : "sdr:mouseenter_10_KHz"
+			"mouse-wheel" : "fcd:wheel_10_KHz",
+			"mouse-exit" : "fcd:mouseexit_10_KHz",
+			"mouse-enter" : "fcd:mouseenter_10_KHz"
 		},
 		{
 			"kind" : "Digit",
@@ -136,9 +136,9 @@ ns: sdr
 			"font" : "Arial 30",
 			"font-hi" : "Arial 33",
 			"bounds" : ` 55 0 65 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_1_KHz",
-			"mouse-exit" : "sdr:mouseexit_1_KHz",
-			"mouse-enter" : "sdr:mouseenter_1_KHz"
+			"mouse-wheel" : "fcd:wheel_1_KHz",
+			"mouse-exit" : "fcd:mouseexit_1_KHz",
+			"mouse-enter" : "fcd:mouseenter_1_KHz"
 		},
 		{
 			"kind" : "Separator",
@@ -153,9 +153,9 @@ ns: sdr
 			"font" : "Arial 20",
 			"font-hi" : "Arial 23",
 			"bounds" : ` 70 0 80 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_100_Hz",
-			"mouse-exit" : "sdr:mouseexit_100_Hz",
-			"mouse-enter" : "sdr:mouseenter_100_Hz"
+			"mouse-wheel" : "fcd:wheel_100_Hz",
+			"mouse-exit" : "fcd:mouseexit_100_Hz",
+			"mouse-enter" : "fcd:mouseenter_100_Hz"
 		},
 		{
 			"kind" : "Digit",
@@ -165,9 +165,9 @@ ns: sdr
 			"font" : "Arial 20",
 			"font-hi" : "Arial 23",
 			"bounds" : ` 80 0 90 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_10_Hz",
-			"mouse-exit" : "sdr:mouseexit_10_Hz",
-			"mouse-enter" : "sdr:mouseenter_10_Hz"
+			"mouse-wheel" : "fcd:wheel_10_Hz",
+			"mouse-exit" : "fcd:mouseexit_10_Hz",
+			"mouse-enter" : "fcd:mouseenter_10_Hz"
 		},
 		{
 			"kind" : "Digit",
@@ -177,9 +177,9 @@ ns: sdr
 			"font" : "Arial 20",
 			"font-hi" : "Arial 23",
 			"bounds" : ` 90 0 100 100 do_bounds `,
-			"mouse-wheel" : "sdr:wheel_1_Hz",
-			"mouse-exit" : "sdr:mouseexit_1_Hz",
-			"mouse-enter" : "sdr:mouseenter_1_Hz"
+			"mouse-wheel" : "fcd:wheel_1_Hz",
+			"mouse-exit" : "fcd:mouseexit_1_Hz",
+			"mouse-enter" : "fcd:mouseenter_1_Hz"
 		}
 	]
 } var, vfo_panel
@@ -240,30 +240,6 @@ vfo_separator @ g:+kind
 	' set_digit a:each 2drop		\ parent-gui
 ;
 
-: vfo_r1 \ vfo-id -- 
-	dup "VFO-R1" s:= if drop false true else false then
-;
-
-: vfo_r2 \ vfo-id --
-	dup "VFO-R2" s:= if drop false true else false then
-;
-
-: vfo_r3 \ vfo-id --
-	dup "VFO-R3" s:= if drop false true else false then 
-;
-
-: vfo_tx \ vfo-id --
-	dup "VFO-TX" s:= if drop false true else false then 
-;
-
-\ Update the frequency on the appropriate radio model
-: update_model	\ new-freq parent --  
-	"id" g:m@ nip
-	[ ' vfo_r1 , ' model_r1_set_freq , ' vfo_r2 , ' model_r2_set_freq ,  ' vfo_r3 , ' model_r3_set_freq ,  ' vfo_tx , ' model_tx_set_freq ]
-	a:when
-	drop
-;
-
 : update_freq_value 			\ increment(Hz) gui -- increment(Hz) gui
 	dup g:parent "freq"			\ increment(Hz) gui parent "freq"
 	g:m@								 		\ increment(Hz) gui parent freq-value
@@ -276,7 +252,8 @@ vfo_separator @ g:+kind
 	-rot										\ increment(Hz) gui parent new-freq parent "freq" new-freq
 	g:m!										\ increment(Hz) gui parent new-freq parent
 	drop swap								\ increment(Hz) gui new-freq parent
-	update_model		 				\ increment(Hz) gui
+	\ update_model		 				\ increment(Hz) gui
+	1 pick c_set_freq
 ;
 
 \ ===============================================================
@@ -317,12 +294,12 @@ vfo_separator @ g:+kind
 		3 pick 									\ lower upper freq increment f+i -- lower upper freq increment f+i upper
 		n:> not if							\ lower upper freq increment f+i upper -- lower upper freq increment
 			\ Lower than high limit, good to go
-			4drop false ;;				\ lower upper freq increment -- f
+			2drop 2drop false ;;	\ lower upper freq increment -- f
 		else
-			4drop									\ lower upper freq increment --
+			2drop 2drop						\ lower upper freq increment --
 		then
 	else
-		drop 4drop							\ lower upper freq increment f+i --
+		drop 2drop 2drop				\ lower upper freq increment f+i --
 	then
 	true											\ -- f
 ;
@@ -659,73 +636,6 @@ vfo_separator @ g:+kind
 ;
 
 \ ============================================================================
-\ Subscriber Events
-\ Obey the SED and consume the data
-\ Potentially a freq update
-: get_radio_freq \ a -- a freq
-	"freq" m:@
-;
-
-: get_vfo_gui	\ radio id -- g
-	main_window @ "concertina" g:child 
-	rot g:child
-	swap g:child
-;
-
-: update_gui_vfo	\ freq g --
-	"freq" swap g:m!
-;
-
-: update_vfo_tail \ freq g --
-	update_gui_vfo
-	reset_all_digits
-	g:invalidate
-	2drop
-;
-
-: vfo_evt_r1_vfo	\ a --
-	\ "vfo_evt_r1_vfo" log
-	\ Update the radio 1 freq
-	get_radio_freq
-	"radio-1" "VFO-R1" get_vfo_gui
-	swap update_vfo_tail
-;
-
-: vfo_evt_r2_vfo	\ a --
-	\ "vfo_evt_r2_vfo" log
-	get_radio_freq
-	"radio-2" "VFO-R2" get_vfo_gui
-	swap update_vfo_tail
-;
-
-: vfo_evt_r3_vfo	\ a --
-	\ "vfo_evt_r3_vfo" log
-	get_radio_freq
-	"radio-3" "VFO-R3" get_vfo_gui
-	swap update_vfo_tail
-;
-
-: vfo_evt_tx_vfo	\ a --
-	\ Switch on the duplex state
-	"state" m:@ "duplex" m:@ nip if
-		\ Duplex - TX tunes independently
-		"duplex" m:@
-	else
-		\ Simplex - TX follows radio 1
-		"simplex" m:@ 
-	then
-	\ Update GUI and set the vfo digits
-	nip nip dup
-	get_radio_freq
-	tx_window @ "tx-box" g:child "VFO-TX" g:child
-	swap
-	"freq" swap g:m!
-	reset_all_digits
-	g:invalidate
-	2drop
-;
-
-\ ============================================================================
 \ Initialisation
 \ Create a VFO
 : vfo_new										\ id bounds -- new-vfo-gui
@@ -740,34 +650,6 @@ vfo_separator @ g:+kind
 : vfo_init	\  gui -- gui
   enumerate_digits
   reset_all_digits
-;
-
-\ Subscribe to available radios
-: vfo_subscribe_radios_1
-	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
-	UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-	SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-;
-
-: vfo_subscribe_radios_2
-	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
-	UI_R2_FREQ ' vfo_evt_r2_vfo pubsub_subscribe
-	UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-	SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-;
-
-: vfo_subscribe_radios_3
-	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
-	UI_R2_FREQ ' vfo_evt_r2_vfo pubsub_subscribe
-  UI_R3_FREQ ' vfo_evt_r3_vfo pubsub_subscribe
-  UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-  SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
-;
-
-: vfo_subscribe	\  --
-  \ Subscribe to events
-	[ ' vfo_subscribe_radios_1 , ' vfo_subscribe_radios_2 , ' vfo_subscribe_radios_3 ]
-	swap caseof
 ;
 
 \ Restore namespace	

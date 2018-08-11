@@ -23,7 +23,7 @@
 *)
 
 \ Set namespace
-ns: sdr.alsa
+ns: fcd
 
 \ ===============================================================================
 \ SDRAlsaClient library management
