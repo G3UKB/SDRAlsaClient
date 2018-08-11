@@ -1,0 +1,94 @@
+(*
+	widget_common.8th
+ 
+  References and helper words that must be included first in the UI area
+ 
+ Copyright C 2018 by G3UKB Bob Cowdery
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ at your option any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+  The author can be reached by email at:   
+     bob@bobcowdery.plus.com
+*)
+
+\ Set namespace
+ns: fcd
+
+\ ===============================================================================
+\ The GUI main window variable
+var main_window
+
+\ ============================================================================
+\ Json GUI def helpers
+
+\ Page level
+{
+	"dir" : "",
+	"wrap" : "nowrap",
+	"align" : "start",
+	"alignitems" : "start",
+	"justify" : "start"
+} var, flex_page
+
+\ Widget level
+{
+	"width" : 0, 
+	"height" : 0,
+	"margin" : [2, 5, 0, 5],
+	"grow" : 0,
+	"shrink" : 0
+} var, flex_widget
+
+\ Set up a flex box definition
+: flex_do_box	\ direction -- flex_page (clone updated)
+	flex_page @ clone "dir" 3 pick m:! swap drop swap drop 
+;
+
+\ Set up a flex widget definition
+: flex_do_widget 	\ width height -- flex_widget (clone updated)
+	flex_widget @ clone "width" 4 pick m:! "height" 3 pick m:! swap drop swap drop swap drop 
+;
+
+\ Convert a % bounds definition to a pixel bounds definition
+: do_bounds	\	%left %top %right %bottom -- pix-left pix-top pix-right pix-bottom
+	100 / swap 		\ bottom
+	100 / 2swap		\ right
+	100 / swap 		\ top
+	100 /  				\ left
+	"parent.width*%f,parent.height*%f,parent.width*%f,parent.height*%f" s:strfmt 
+;
+
+\ Font cache as creating fonts after 18.03 is VERY expensive
+: mysetfont \ name -- font
+  \ font cache:
+  {}
+  \ name map
+  over
+  \ name map name
+  m:@ null? if
+    drop
+    \ name map
+    over font:new
+    \ name map font
+    dup >r
+    rot swap m:! drop
+  else
+    \ name map font
+    >r 2drop
+  then
+  r> const
+  g:setfont ;
+  
+\ Restore namespace	
+ns: user
