@@ -35,8 +35,8 @@ ns: fcd
 	"visible" : true,
 	"bg" : "gray10",
 	"resize-corner" : 20,
-	"wide" : 360,
-	"high" : 180,
+	"wide" : 330,
+	"high" : 150,
 	"center" : true,
 	"ontop" : false,
 	"font" : "Arial 10",
@@ -45,10 +45,49 @@ ns: fcd
 		{
 				"kind" : "box",
 				"name" : "vfo-box",
-				"bounds" : "0,0,parent.width,parent.height",
+				"bounds" : "0,0,parent.width,parent.height/3",
 				"bg" : "gray10",
 				"children" :
 			[
+			]
+		},
+		{
+				"kind" : "box",
+				"name" : "main-box",
+				"bounds" : "0,parent.height/3,parent.width,parent.height",
+				"bg" : "gray10",
+				"children" :
+			[
+				{
+						"kind" : "btn",
+						"name" : "start-btn",
+						"autotoggle" : true,
+						"label" : "Start",
+						"bg0" : "gray10",
+						"fg0" : "gold3",
+						"fg" : "orangered2",
+						"bg" : "gray1",
+						"font" : 13,
+						"bounds" : "10,40,80,70",
+						"click" : "fcd:start_stream"
+				},
+				{
+						"kind" : "label",
+						"label" : "Device",
+						"fg" : "orangered2",
+						"bounds" : "100,40,140,70"
+				},
+				{
+						"kind" : "combo",
+						"name" : "audio-input-source",
+						"editable" : 0,
+						"empty-text" : "Please select",
+						"no_choices" : "Empty",
+						"items" : [],
+						"selected" : 0,
+						"bounds" : "150,40,320,70",
+						"changed" : "fcd:audio_input_source"
+				}
 			]
 		}
 	]
@@ -62,6 +101,21 @@ ns: fcd
 	"VFO-1" "0,0,330,50" vfo_new dup
 	main_window @ "vfo-box" g:child swap g:+child
 	drop vfo_init
+;
+
+\ ============================================================================
+\ Event management
+: start_stream	\ g --
+	g:on? if
+		\ start
+		c_do_start
+	else
+		\ stop
+		c_do_stop
+	then
+;
+
+: audio_input_source	\ g --
 ;
 
 \ ============================================================================

@@ -58,7 +58,10 @@ udp_thread_data *udp_writer_td;
 udp_thread_data *udp_reader_td;
 
 // Prototypes
+
 int DLL_EXPORT RunClient();
+void DLL_EXPORT StartStream();
+void DLL_EXPORT StopStream();
 char* DLL_EXPORT AppLastError();
 void DLL_EXPORT SetFreq(unsigned int freq_in_hz);
 

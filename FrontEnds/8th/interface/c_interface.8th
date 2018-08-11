@@ -62,6 +62,8 @@ ns: fcd
 "N" "RunClient" func: cc_run_client
 "Z" "AppLastError" func: cc_app_last_error
 "VN" "SetFreq" func: cc_set_freq
+"V" "StartStream" func: cc_do_start
+"V" "StopStream" func: cc_do_stop
 drop
 
 \ ===============================================================================
@@ -93,6 +95,18 @@ drop
 	wait_lib_s4
 	cc_app_last_error
 	rel_lib_s4
+;
+
+: c_do_start	\ --
+	\ wait_lib_s4
+	cc_do_start
+	\ rel_lib_s4
+;
+
+: c_do_stop	\ --
+	\ wait_lib_s4
+	cc_do_stop
+	\ rel_lib_s4
 ;
 
 : c_set_freq	\ freq --

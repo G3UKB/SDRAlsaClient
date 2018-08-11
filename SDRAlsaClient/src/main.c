@@ -151,12 +151,18 @@ int DLL_EXPORT RunClient()
         return -1;
 	}
 
-	//===========================================================================
-    // Send a start message to start streaming
-    do_start(sd, srv_addr);
-
 	// Finally success
 	return 0;
+}
+
+// Start stream
+void DLL_EXPORT StartStream() {
+    do_start(sd, srv_addr);
+}
+
+// Stop stream
+void DLL_EXPORT StopStream() {
+    do_stop(sd, srv_addr);
 }
 
 // Set the frequency
