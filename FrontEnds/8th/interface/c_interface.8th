@@ -96,9 +96,9 @@ drop
 ;
 
 : c_set_freq	\ freq --
-	wait_lib_s4
+	\ wait_lib_s4
 	cc_set_freq
-	rel_lib_s4
+	\ rel_lib_s4
 ;
 
 \ Testing only

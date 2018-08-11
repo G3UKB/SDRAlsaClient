@@ -54,8 +54,8 @@ ns: fcd
 {
   "kind" : "VFO",
   "freq" : 7000000,
-  "low-limit" : 100000,
-  "high-limit" : 500000000,
+  "low-limit" : 150000,
+  "high-limit" : 2000000000,
   "digits" : [],
   "fg" : "gray96",
   "bg" : "gray10",
@@ -230,14 +230,14 @@ vfo_separator @ g:+kind
 
 : reset_all_digits						\ parent-gui -- parent-gui
 	\ Get the frequency in Hz
-	"freq" g:m@	n:int								\ parent-gui freq-in-hz
+	"freq" g:m@	 n:int					\ parent-gui freq-in-hz
 	\ Make it a 9 digit array with leading 0's
-	"%09d" s:strfmt null s:/		\ parent-gui array-freq-in-hz
+	"%09d" s:strfmt null s:/ 		\ parent-gui array-freq-in-hz
 	\ Work through the array and set each digit value
 	swap 												\ array-freq-in-hz parent-gui
 	"digits" g:m@ 							\ array-freq-in-hz parent-gui array-digit-obj
-	rot													\ parent-gui array-digit-obj array-freq-in-hz
-	' set_digit a:each 2drop		\ parent-gui
+	rot	 												\ parent-gui array-digit-obj array-freq-in-hz
+	' set_digit a:each 2drop	 	\ parent-gui
 ;
 
 : update_freq_value 			\ increment(Hz) gui -- increment(Hz) gui
@@ -252,8 +252,7 @@ vfo_separator @ g:+kind
 	-rot										\ increment(Hz) gui parent new-freq parent "freq" new-freq
 	g:m!										\ increment(Hz) gui parent new-freq parent
 	drop swap								\ increment(Hz) gui new-freq parent
-	\ update_model		 				\ increment(Hz) gui
-	1 pick c_set_freq
+	drop c_set_freq
 ;
 
 \ ===============================================================
