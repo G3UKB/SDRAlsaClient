@@ -1,0 +1,214 @@
+(*
+	main_window.8th
+ 
+  Main window for the SDRAlsaClient application
+ 
+ Copyright C 2018 by G3UKB Bob Cowdery
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ at your option any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+  The author can be reached by email at:   
+     bob@bobcowdery.plus.com
+*)
+
+\ ============================================================================
+
+\ Define our SDR namespace
+ns: sdr.alsa
+
+\ ========================================
+\ Main window
+{
+	"kind" : "win",
+	"title" : "SDRAlsaClient",
+	"visible" : true
+	"bg" : "gray10",
+	"resize-corner" : 20,
+	"wide" : 360,
+	"high" : 180,
+	"center" : true,
+	"ontop" : false,
+	"buttons" : 0,
+	"font" : "Arial 10",
+	"children" :
+	[
+		{
+			"kind" : "box",
+			"name" : "button-box",
+			"bounds" : "0,0,parent.width,75",
+			"bg" : "gray10",
+			"children" :
+			[
+				{
+					"kind" : "btn",
+					"name" : "m-MOX",
+					"label" : "MOX",
+					"bg" : "green3",
+					"fg" : "white",
+					"font" : 16,
+					"bounds" : "5,5,90,40",
+					"click" : "sdr:evt_tx_mox"
+				},
+				{
+					"kind" : "toggle",
+					"label" : "Duplex",
+					"fg" : "white",
+					"name" : "tx-duplex",
+					"bounds" : "120,5,190,40",
+					"click" : "sdr:tx_duplex"
+				}
+			]
+		},
+		{
+			"kind" : "box",
+			"name" : "tx-box",
+			"bounds" : "0,45,parent.width, parent.height",
+			"bg" : "gray10",
+			"children" : 
+			[
+				{
+					"kind" : "box",
+					"name" : "tx-lbl-box",
+					"bg" : "gray10",
+					"fg" : "gold3",
+					"bounds" : "0,0,80,50",
+					"children" : [
+						{
+							"kind" : "box",
+							"name" : "tx-lbl-box1",
+							"bg" : "gray17",
+							"fg" : "gold3",
+							"grid" : {"cols" : 2 , "rows" : 2 , "defmargin" : 3},
+							"children" : [
+								{
+									"kind" : "label",
+									"name" : "tx-mode-lbl",
+									"label" : "123",
+									"fg" : "green3",
+									"bg" : "gray17",
+									"font" : 12
+								},
+								{
+									"kind" : "label",
+									"name" : "tx-filt-lbl",
+									"label" : "",
+									"fg" : "green3",
+									"bg" : "gray17",
+									"font" : 12
+								},
+								{
+									"kind" : "label",
+									"name" : "tx-rfgain-lbl",
+									"label" : "",
+									"fg" : "green3",
+									"bg" : "gray17",
+									"font" : 12
+								},
+								{
+									"kind" : "label",
+									"name" : "tx-micgain-lbl",
+									"label" : "",
+									"fg" : "green3",
+									"bg" : "gray17",
+									"font" : 12
+								}
+							]
+						}
+					]
+				},
+				{
+					"kind" : "btn",
+					"name" : "tx-mode-btn",
+					"autotoggle" : true,
+					"label" : "Mode",
+					"bg" : "gray10",
+					"fg" : "gold3",
+					"font" : 13,
+					"bounds" : "0,50,50,70",
+					"click" : "sdr:tx_mode_select"
+				},
+				{
+					"kind" : "btn",
+					"name" : "tx-filter-btn",
+					"autotoggle" : true,
+					"label" : "Filter",
+					"bg" : "gray10",
+					"fg" : "gold3",
+					"font" : 13,
+					"bounds" : "0,70,50,90",
+					"click" : "sdr:tx_filter_select"
+				},
+				{
+					"kind" : "btn",
+					"name" : "tx_rfgain-btn",
+					"autotoggle" : true,
+					"label" : "RF Gn",
+					"bg" : "gray10",
+					"fg" : "gold3",
+					"font" : 13,
+					"bounds" : "0,90,50,110",
+					"click" : "sdr:tx_rf_gain"
+				},
+				{
+					"kind" : "btn",
+					"name" : "tx_micgain-btn",
+					"autotoggle" : true,
+					"label" : "Mic Gn",
+					"bg" : "gray10",
+					"fg" : "gold3",
+					"font" : 13,
+					"bounds" : "0,110,50,130",
+					"click" : "sdr:tx_mic_gain"
+				}
+			]
+		}
+	]
+} var, tx_window_obj
+
+{
+	"kind" : "label",
+	"name" : "overlay",
+	"bg" : "gray:5",
+	\ "bounds" : "0,45,parent.width, parent.height"
+	"bounds" : "80,45,parent.width, 95"
+} var, overlay
+
+\ ===============================================================================
+\ ============================================================================
+\ Window management
+
+\ ============================================================================
+\ Initialise window
+: add_child_tx_box_common						\ ?-id bounds --
+	tx_window @ "tx-box" g:child			\ ?-id bounds gui 
+	-rot															\  gui ?-id bounds 
+;
+
+: add_child_tx_top_common						\ ?-id bounds --
+	tx_window @ "button-box" g:child	\ ?-id bounds gui 
+	-rot															\  gui ?-id bounds 
+;	
+
+\ Add child VFO
+: add_child_tx_vfo					\ vfo-id bounds --
+	add_child_tx_box_common		\ gui vfo-id bounds 
+	vfo_new 									\ vfo-id gui vfo-obj
+	dup -rot									\ vfo-id vfo-obj gui vfo-obj
+	g:+child drop 						\ vfo-id vfo-obj
+	vfo_init drop							\ --
+;
+
+\ ============================================================================		
+\ Restore namespace	
+ns: user	

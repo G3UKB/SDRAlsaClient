@@ -1,0 +1,774 @@
+(*
+	vfo.8th
+ 
+  VFO component for the DynamicSDR application
+ 
+ Copyright C 2017 by G3UKB Bob Cowdery
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ at your option any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+  The author can be reached by email at:   
+     bob@bobcowdery.plus.com
+*)
+
+\ Use SDR namespace
+ns: sdr
+  
+\ ============================================================================
+\ User draw components
+\
+\ ========================================
+\ VFO digit
+{
+  "kind" : "Digit",
+  "fg" : "gray96",
+  "bg" : "gray10",
+  "rot" : 0,
+  "draw" : "sdr:digit_draw"
+} var, vfo_digit
+
+\ ========================================
+\ VFO spacer
+{
+  "kind" : "Separator",
+  "fg" : "lightcoral",
+  "bg" : "gray10",
+  "rot" : 0,
+  "draw" : "sdr:sep_draw"
+} var, vfo_separator
+
+\ ========================================
+\ Composite component
+\ VFO panel
+{
+  "kind" : "VFO",
+  "freq" : 7000000,
+  "low-limit" : 100000,
+  "high-limit" : 500000000,
+  "digits" : [],
+  "fg" : "gray96",
+  "bg" : "gray10",
+  "rot" : 0,
+  "font" : "Arial 14",
+  "draw" : "sdr:vfo_draw",
+  "children" : [
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 0 0 10 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_100_MHz",
+			"mouse-exit" : "sdr:mouseexit_100_MHz",
+			"mouse-enter" : "sdr:mouseenter_100_MHz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 10 0 20 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_10_MHz",
+			"mouse-exit" : "sdr:mouseexit_10_MHz",
+			"mouse-enter" : "sdr:mouseenter_10_MHz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 20 0 30 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_1_MHz",
+			"mouse-exit" : "sdr:mouseexit_1_MHz",
+			"mouse-enter" : "sdr:mouseenter_1_MHz"
+		},
+		{
+		  "kind" : "Separator",
+		  "rot" : 0,
+		  "bounds" : ` 30 0 35 100 do_bounds `
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 35 0 45 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_100_KHz",
+			"mouse-exit" : "sdr:mouseexit_100_KHz",
+			"mouse-enter" : "sdr:mouseenter_100_KHz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 45 0 55 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_10_KHz",
+			"mouse-exit" : "sdr:mouseexit_10_KHz",
+			"mouse-enter" : "sdr:mouseenter_10_KHz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "gray96",
+			"font" : "Arial 30",
+			"font-hi" : "Arial 33",
+			"bounds" : ` 55 0 65 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_1_KHz",
+			"mouse-exit" : "sdr:mouseexit_1_KHz",
+			"mouse-enter" : "sdr:mouseenter_1_KHz"
+		},
+		{
+			"kind" : "Separator",
+			"rot" : 0,
+			"bounds" : ` 65 0 70 100 do_bounds `
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "darkorange",
+			"font" : "Arial 20",
+			"font-hi" : "Arial 23",
+			"bounds" : ` 70 0 80 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_100_Hz",
+			"mouse-exit" : "sdr:mouseexit_100_Hz",
+			"mouse-enter" : "sdr:mouseenter_100_Hz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "darkorange",
+			"font" : "Arial 20",
+			"font-hi" : "Arial 23",
+			"bounds" : ` 80 0 90 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_10_Hz",
+			"mouse-exit" : "sdr:mouseexit_10_Hz",
+			"mouse-enter" : "sdr:mouseenter_10_Hz"
+		},
+		{
+			"kind" : "Digit",
+			"value" : 0,
+			"highlight" : false,
+			"scolor" : "darkorange",
+			"font" : "Arial 20",
+			"font-hi" : "Arial 23",
+			"bounds" : ` 90 0 100 100 do_bounds `,
+			"mouse-wheel" : "sdr:wheel_1_Hz",
+			"mouse-exit" : "sdr:mouseexit_1_Hz",
+			"mouse-enter" : "sdr:mouseenter_1_Hz"
+		}
+	]
+} var, vfo_panel
+
+vfo_panel @ g:+kind
+vfo_digit @ g:+kind
+vfo_separator @ g:+kind
+	
+\ ============================================================================
+\ VFO implementation
+
+\ ========================================
+\ We keep an array of digit children in the parent as it makes iterating digits
+\ easier as separators need to be skipped
+\ Enumerate digits into an array in parent
+
+: append_child	\ parent digit_array ix child_index -- parent digit_array
+	3 pick swap		\ parent digit_array ix parent child_index
+	g:child				\ parent digit_array ix digit-gui
+	a:!						\ parent digit_array
+;
+
+: enumerate_digits	\ parent -- parent
+	\ Get array
+	"digits" g:m@
+	\ Indexes of digit children
+	\ Note 3 & 7 are separators
+	[0,1,2,4,5,6,8,9,10]
+	' append_child a:each
+	2drop
+;	
+
+\ ===============================================================
+\ Action helper words
+: set_digit \ array-children ix freq-digit -- array-children
+	\ Set the freq-digit in array-children[ix]
+	-rot 								\ freq-digit array-children ix 
+	a:@ 								\ freq-digit array-children child-digit-ob 
+	"value"							\ freq-digit array-children child-digit-ob "value"
+	3 pick G:>n					\ freq-digit array-children child-digit-ob "value" freq-digit
+	g:m!								\ freq-digit array-children child-digit-ob
+	drop nip						\ array-children
+;
+
+: repaint_child	\ gui --
+	g:invalidate
+;
+
+: reset_all_digits						\ parent-gui -- parent-gui
+	\ Get the frequency in Hz
+	"freq" g:m@	n:int								\ parent-gui freq-in-hz
+	\ Make it a 9 digit array with leading 0's
+	"%09d" s:strfmt null s:/		\ parent-gui array-freq-in-hz
+	\ Work through the array and set each digit value
+	swap 												\ array-freq-in-hz parent-gui
+	"digits" g:m@ 							\ array-freq-in-hz parent-gui array-digit-obj
+	rot													\ parent-gui array-digit-obj array-freq-in-hz
+	' set_digit a:each 2drop		\ parent-gui
+;
+
+: vfo_r1 \ vfo-id -- 
+	dup "VFO-R1" s:= if drop false true else false then
+;
+
+: vfo_r2 \ vfo-id --
+	dup "VFO-R2" s:= if drop false true else false then
+;
+
+: vfo_r3 \ vfo-id --
+	dup "VFO-R3" s:= if drop false true else false then 
+;
+
+: vfo_tx \ vfo-id --
+	dup "VFO-TX" s:= if drop false true else false then 
+;
+
+\ Update the frequency on the appropriate radio model
+: update_model	\ new-freq parent --  
+	"id" g:m@ nip
+	[ ' vfo_r1 , ' model_r1_set_freq , ' vfo_r2 , ' model_r2_set_freq ,  ' vfo_r3 , ' model_r3_set_freq ,  ' vfo_tx , ' model_tx_set_freq ]
+	a:when
+	drop
+;
+
+: update_freq_value 			\ increment(Hz) gui -- increment(Hz) gui
+	dup g:parent "freq"			\ increment(Hz) gui parent "freq"
+	g:m@								 		\ increment(Hz) gui parent freq-value
+	3 pick 							 		\ increment(Hz) gui parent freq-value increment(Hz)
+	n:+ "freq"					 		\ increment(Hz) gui parent new-freq "freq"
+	swap 								 		\ increment(Hz) gui parent "freq" new-freq
+	dup 										\ increment(Hz) gui parent "freq" new-freq new-freq
+	-rot 										\ increment(Hz) gui parent new-freq "freq" new-freq
+	3 pick 									\ increment(Hz) gui parent new-freq "freq" new-freq parent
+	-rot										\ increment(Hz) gui parent new-freq parent "freq" new-freq
+	g:m!										\ increment(Hz) gui parent new-freq parent
+	drop swap								\ increment(Hz) gui new-freq parent
+	update_model		 				\ increment(Hz) gui
+;
+
+\ ===============================================================
+\ Action implementation
+\ Increment/decrement the value
+: do_inc	 										\ gui value increment(MHz) -- gui
+	\ "Inc" log
+	rot 												\ gui value increment(MHz) -- value increment(MHz) gui 
+	g:invalidate
+	update_freq_value						\ value increment(MHz) gui -- gui
+;
+
+\ Repaint all
+: do_repaint	 									\ gui value increment(MHz) -- gui
+	\ "Repaint" log .s
+	rot														\ gui value increment(MHz) -- value increment(MHz) gui
+	update_freq_value							\ value increment(MHz) gui -- value increment(MHz) gui
+	\ We now need to reset all the values in the digits for the new frequency
+	g:parent reset_all_digits							\ value increment(MHz) gui -- value increment(MHz) gui parent-gui
+	\ Then we repaint all children
+	' repaint_child g:each	drop 	\ value increment(MHz) gui parent-gui -- value increment(MHz) gui
+;
+
+\ Ignore
+: do_range	 										\ gui value increment(MHz) -- gui
+	\ "Range" log
+	2drop
+;
+
+\ ========================================
+\ Frequency check implementation
+\ Is frequency within the allowed range
+: freq_out_of_range 				\	lower upper freq increment -- f
+	2dup n:+ dup							\ lower upper freq increment -- lower upper freq increment f+i f+i
+	5 pick										\ lower upper freq increment f+i -- lower upper freq increment f+i f+i lower
+	n:< not if 								\ lower upper freq increment f+i f+i lower -- lower upper freq increment f+i
+		\ Higher than low limit
+		3 pick 									\ lower upper freq increment f+i -- lower upper freq increment f+i upper
+		n:> not if							\ lower upper freq increment f+i upper -- lower upper freq increment
+			\ Lower than high limit, good to go
+			4drop false ;;				\ lower upper freq increment -- f
+		else
+			4drop									\ lower upper freq increment --
+		then
+	else
+		drop 4drop							\ lower upper freq increment f+i --
+	then
+	true											\ -- f
+;
+
+\ Has the digit rolled over
+: freq_rollover	\ value -- value f
+	dup 9 n:> not if
+		dup 0 n:< not if
+			false ;;
+		then
+	then
+	true
+;
+
+\ ========================================
+\ Apply the frequency increment and determin the correct action to take.
+\ One of Inc/Dec, Full Repaint or Ignore if moves outside the valid range.
+\ Actions
+: ACTION_INCREMENT 0 ;		\ Allowed so just Inc/Dec the digit
+: ACTION_REPAINT 1 ;			\ Allowed but digit rolledover/under so a full adjust and repaint is required
+: ACTION_OUT_OF_RANGE 2 ;	\ Ignore because the increment would take the frequency outside the permitted range
+
+: do_freq_checks								\ gui value increment(MHz) -- gui value increment(MHz) action
+	\ Check freq in range
+	rot														\ gui value increment(MHz) -- value increment(MHz) gui
+	dup g:parent 									\ value increment(MHz) gui -- value increment(MHz) gui parent-gui
+	"low-limit" g:m@ swap					\ value increment(MHz) gui parent-gui -- value increment(MHz) gui low-limit parent-gui
+	"high-limit" g:m@ swap 				\ value increment(MHz) gui low-limit parent-gui -- value increment(MHz) gui low-limit high-limit parent-gui
+	"freq" g:m@	swap							\ value increment(MHz) low-limit high-limit gui -- value increment(MHz) gui low-limit high-limit freq parent-gui
+	drop 4 pick 									\ value increment(MHz) gui low-limit high-limit freq parent-gui -- value increment(MHz) gui low high freq increment(MHz)
+	freq_out_of_range if					\ value increment(MHz) gui low high freq increment(MHz) -- value increment(MHz) gui
+		\ Reject the update
+		-rot ACTION_OUT_OF_RANGE ;;	\ value increment(MHz) gui -- gui value increment(MHz) ACTION_OUT_OF_RANGE
+	else
+		-rot swap freq_rollover if	\ value increment(MHz) gui
+			\ Yes, we will need a full repaint
+			swap ACTION_REPAINT ;;
+		then
+	then
+	\ OK to just inc/dec the digit
+	swap ACTION_INCREMENT
+;
+
+\ ===============================================================
+\ Update entry point
+\ Updates the stored frequency and the visual representation
+\ Called from mouse wheel events
+: update_freq	\	gui value increment(MHz) -- gui
+	\ Value is the digit value which can be +ve or -ve
+	\ Increment is the increment value of the digit i.e. 100MHz
+	\ Increment can be +ve or -ve depending on the mouse wheel
+	\ direction and the number of clicks.
+	\ Determine action to take
+	do_freq_checks		\ gui value increment(MHz) action -- 
+	\ Switch on action
+	[ ' do_inc , ' do_repaint , ' do_range ] swap
+	caseof
+	\ Event stack so no need to clean up
+;	
+
+\ ======================================================================================
+\ Event helpers
+\ Mouse wheel helpers, inc/dec and store the current value
+: wheel_value					\ delta gui -- new-value gui 
+	"value" g:m@ 				\ delta gui current-value
+	rot									\ gui current-value delta
+	0 n:< if						\ gui current-value
+		n:1-							\ gui new-value (wheel reverse)
+	else
+		n:1+  						\ gui new-value (wheel forward)
+	then
+	dup									\ gui new-value new-value
+	rot swap						\ new-value gui new-value
+	"value" swap 				\ new-value gui "value" new-value
+	g:m!								\ new-value gui
+;
+
+\ ========================================
+\ Drawing event handlers
+\ Draw any outer text etc to the cntainer
+: vfo_draw	\ gui -- 
+	\ "red" g:scolor
+	\ "id" g:m@ "VFO-R1-A" s:=ic if
+	\ 	3 5 "VFO-A" g:draw-text-at
+	\ else
+	\ 	3 5 "VFO-B" g:draw-text-at
+	\ then
+;
+
+\ Draw an individual digit according to highlight and value
+: digit_draw_old	\ gui -- 
+	"highlight" g:m@ if
+		"font-hi" g:m@ g:setfont
+	else
+		"font" g:m@ g:setfont
+	then
+	"scolor" g:m@ g:scolor
+	"value" g:m@ G:>s 10 20 rot g:draw-text-at
+;
+
+: digit_draw	\ gui --
+	"highlight" g:m@ if "font-hi" else "font" then
+  g:m@ mysetfont
+	"scolor" g:m@ g:scolor
+	"value" g:m@ G:>s 10 20 rot g:draw-text-at ;
+	
+\ Draw a separator between digit groups
+: sep_draw	\ gui -- 
+	"grey42" g:scolor
+	"grey42" g:fcolor
+	1 g:line-width
+	7 30 3 0 360 g:arc
+	g:fill
+	g:stroke
+;
+
+\ ======================================================================================
+\ Mouse event handlers
+\ Enter, leave and wheel for each digit
+\ 100 MHz
+: mouseenter_100_MHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_100_MHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_100_MHz						\ gui reversed? deltaX deltaY posX posY -- gui
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-100000000						\ new-value gui	-100000000
+	else
+		100000000							\ new-value gui	100000000
+	then
+	rot swap								\ gui new-value 100000000 
+	update_freq							\	gui 
+;
+
+\ 10 MHz
+: mouseenter_10_MHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_10_MHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_10_MHz						\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-10000000							\ new-value gui	-10000000
+	else
+		10000000							\ new-value gui	10000000
+	then
+	rot swap								\ gui new-value 10000000 
+	update_freq							\	gui 
+;
+
+\ 1 MHz
+: mouseenter_1_MHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_1_MHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_1_MHz							\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-1000000							\ new-value gui	-1000000
+	else
+		1000000								\ new-value gui	1000000
+	then
+	rot swap								\ gui new-value 1000000 
+	update_freq							\	gui 
+;
+
+\ 100KHz
+: mouseenter_100_KHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_100_KHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_100_KHz						\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-100000								\ new-value gui	-100000
+	else
+		100000								\ new-value gui	100000
+	then
+	rot swap								\ gui new-value 100000 
+	update_freq							\	gui 
+;
+
+\ 10KHz
+: mouseenter_10_KHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_10_KHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_10_KHz						\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-10000								\ new-value gui	-10000
+	else
+		10000									\ new-value gui	10000
+	then
+	rot swap								\ gui new-value 10000
+	update_freq							\	gui 
+;
+
+\ 1KHz
+: mouseenter_1_KHz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_1_KHz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_1_KHz							\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-1000									\ new-value gui	-1000
+	else
+		1000									\ new-value gui	1000
+	then
+	rot swap								\ gui new-value 1000
+	update_freq							\	gui 
+;
+
+\ 100Hz
+: mouseenter_100_Hz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_100_Hz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_100_Hz						\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-100									\ new-value gui	-100
+	else
+		100										\ new-value gui	100
+	then
+	rot swap								\ gui new-value 100 
+	update_freq							\	gui  
+;
+
+\ 10Hz
+: mouseenter_10_Hz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_10_Hz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_10_Hz							\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-10										\ new-value gui	-10
+	else
+		10										\ new-value gui	10
+	then
+	rot swap								\ gui new-value 10 
+	update_freq							\	gui 
+;
+
+\ 1Hz
+: mouseenter_1_Hz	\ gui -- 
+  "highlight" true g:m!
+  g:invalidate
+;
+
+: mouseexit_1_Hz	\ gui -- 
+  "highlight" false g:m!
+  g:invalidate
+;
+
+: wheel_1_Hz							\ gui reversed? deltaX deltaY posX posY --
+	2drop nip nip dup rot		\ deltaY deltaY gui 
+	wheel_value 						\	deltaY new-value gui
+	rot											\ new-value gui	deltaY
+	0 n:< if
+		-1										\ new-value gui	-1
+	else
+		1											\ new-value gui	1
+	then
+	rot swap								\ gui new-value 1 
+	update_freq							\	gui 
+;
+
+\ ============================================================================
+\ Subscriber Events
+\ Obey the SED and consume the data
+\ Potentially a freq update
+: get_radio_freq \ a -- a freq
+	"freq" m:@
+;
+
+: get_vfo_gui	\ radio id -- g
+	main_window @ "concertina" g:child 
+	rot g:child
+	swap g:child
+;
+
+: update_gui_vfo	\ freq g --
+	"freq" swap g:m!
+;
+
+: update_vfo_tail \ freq g --
+	update_gui_vfo
+	reset_all_digits
+	g:invalidate
+	2drop
+;
+
+: vfo_evt_r1_vfo	\ a --
+	\ "vfo_evt_r1_vfo" log
+	\ Update the radio 1 freq
+	get_radio_freq
+	"radio-1" "VFO-R1" get_vfo_gui
+	swap update_vfo_tail
+;
+
+: vfo_evt_r2_vfo	\ a --
+	\ "vfo_evt_r2_vfo" log
+	get_radio_freq
+	"radio-2" "VFO-R2" get_vfo_gui
+	swap update_vfo_tail
+;
+
+: vfo_evt_r3_vfo	\ a --
+	\ "vfo_evt_r3_vfo" log
+	get_radio_freq
+	"radio-3" "VFO-R3" get_vfo_gui
+	swap update_vfo_tail
+;
+
+: vfo_evt_tx_vfo	\ a --
+	\ Switch on the duplex state
+	"state" m:@ "duplex" m:@ nip if
+		\ Duplex - TX tunes independently
+		"duplex" m:@
+	else
+		\ Simplex - TX follows radio 1
+		"simplex" m:@ 
+	then
+	\ Update GUI and set the vfo digits
+	nip nip dup
+	get_radio_freq
+	tx_window @ "tx-box" g:child "VFO-TX" g:child
+	swap
+	"freq" swap g:m!
+	reset_all_digits
+	g:invalidate
+	2drop
+;
+
+\ ============================================================================
+\ Initialisation
+\ Create a VFO
+: vfo_new										\ id bounds -- new-vfo-gui
+	vfo_panel @ G:clone nip		\ id bounds vfo-clone
+	"id" 3 pick m:!
+	"name" 3 pick m:!
+	"bounds" 2 pick m:!
+	nip nip g:new
+;
+
+\ Initialise a VFO instance
+: vfo_init	\  gui -- gui
+  enumerate_digits
+  reset_all_digits
+;
+
+\ Subscribe to available radios
+: vfo_subscribe_radios_1
+	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
+	UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+	SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+;
+
+: vfo_subscribe_radios_2
+	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
+	UI_R2_FREQ ' vfo_evt_r2_vfo pubsub_subscribe
+	UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+	SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+;
+
+: vfo_subscribe_radios_3
+	UI_R1_FREQ ' vfo_evt_r1_vfo pubsub_subscribe
+	UI_R2_FREQ ' vfo_evt_r2_vfo pubsub_subscribe
+  UI_R3_FREQ ' vfo_evt_r3_vfo pubsub_subscribe
+  UI_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+  SYS_TX_FREQ ' vfo_evt_tx_vfo pubsub_subscribe
+;
+
+: vfo_subscribe	\  --
+  \ Subscribe to events
+	[ ' vfo_subscribe_radios_1 , ' vfo_subscribe_radios_2 , ' vfo_subscribe_radios_3 ]
+	swap caseof
+;
+
+\ Restore namespace	
+ns: user	
