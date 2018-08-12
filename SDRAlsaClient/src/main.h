@@ -49,6 +49,7 @@ pthread_t udp_reader_thd;
 
 // Thread data structure for UDP reader/writer
 typedef struct udp_thread_data {
+    int run;
     int terminate;
     int socket;
     struct sockaddr_in *srv_addr;

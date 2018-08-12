@@ -109,9 +109,11 @@ ns: fcd
 	g:on? if
 		\ start
 		c_do_start
+		"Stop" g:text
 	else
 		\ stop
 		c_do_stop
+		"Start" g:text
 	then
 ;
 

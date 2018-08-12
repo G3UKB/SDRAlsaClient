@@ -45,8 +45,11 @@ void *udp_reader_imp(void* data){
     printf("Started UDP reader thread\n");
 
     while (td->terminate == FALSE) {
-         udprecvdata(sd, srv_addr);
-         Sleep(0.1);
+        if (td->run) {
+            udprecvdata(sd, srv_addr);
+        } else {
+            Sleep(0.1);
+        }
     }
 
     printf("UDP Reader thread exiting...\n");

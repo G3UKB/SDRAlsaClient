@@ -60,22 +60,26 @@ void *udp_writer_imp(void* data){
     printf("Started UDP writer thread\n");
 
     while (td->terminate == FALSE) {
-        new_freq = fcd_get_freq();
-        if (new_freq != last_freq){
-            // We have a frequency change
-            // Format the message
-            memset(packet_buffer,0x0,METIS_FRAME_SZ);
-            set_metis_header(packet_buffer);
-            set_usb_header(USB_SYNC_1, packet_buffer);
-            set_freq(USB_FREQ_1, new_freq, packet_buffer);
-            set_usb_header(USB_SYNC_2, packet_buffer);
-            set_freq(USB_FREQ_2, new_freq, packet_buffer);
+        if (td->run) {
+            new_freq = fcd_get_freq();
+            if (new_freq != last_freq){
+                // We have a frequency change
+                // Format the message
+                memset(packet_buffer,0x0,METIS_FRAME_SZ);
+                set_metis_header(packet_buffer);
+                set_usb_header(USB_SYNC_1, packet_buffer);
+                set_freq(USB_FREQ_1, new_freq, packet_buffer);
+                set_usb_header(USB_SYNC_2, packet_buffer);
+                set_freq(USB_FREQ_2, new_freq, packet_buffer);
 
-            // Dispatch
-            //printf("Freq: %d\n", new_freq);
-            if (sendto(sd, (const char*)packet_buffer, METIS_FRAME_SZ, 0, (struct sockaddr*) srv_addr, sizeof(*srv_addr)) == -1) {
-                printf("UDP dispatch failed!\n");
+                // Dispatch
+                //printf("Freq: %d\n", new_freq);
+                if (sendto(sd, (const char*)packet_buffer, METIS_FRAME_SZ, 0, (struct sockaddr*) srv_addr, sizeof(*srv_addr)) == -1) {
+                    printf("UDP dispatch failed!\n");
+                }
             }
+        } else {
+            Sleep(0.1);
         }
     }
     printf("UDP Writer thread exiting...\n");

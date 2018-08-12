@@ -122,6 +122,7 @@ int DLL_EXPORT RunClient()
     // Allocate thread data structure
 	udp_writer_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_WRITER_STRUCT");
 	// Init with thread data items
+	udp_writer_td->run = FALSE;
 	udp_writer_td->terminate = FALSE;
     udp_writer_td->rb = rb_iq;
     udp_writer_td->socket = sd;
@@ -139,6 +140,7 @@ int DLL_EXPORT RunClient()
     // Allocate thread data structure
 	udp_reader_td = (udp_thread_data*)safealloc(sizeof(udp_thread_data), sizeof(char), "UDP_TD_READER_STRUCT");
 	// Init with thread data items
+	udp_reader_td->run = FALSE;
 	udp_reader_td->terminate = FALSE;
     udp_reader_td->rb = rb_iq;
     udp_reader_td->socket = sd;
@@ -158,10 +160,14 @@ int DLL_EXPORT RunClient()
 // Start stream
 void DLL_EXPORT StartStream() {
     do_start(sd, srv_addr);
+    udp_writer_td->run = TRUE;
+    udp_reader_td->run = TRUE;
 }
 
 // Stop stream
 void DLL_EXPORT StopStream() {
+    udp_writer_td->run = FALSE;
+    udp_reader_td->run = FALSE;
     do_stop(sd, srv_addr);
 }
 
